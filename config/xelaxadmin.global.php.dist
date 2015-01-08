@@ -1,0 +1,56 @@
+<?php
+
+/* 
+ * Copyright (C) 2014 schurix
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+$xelaxConfig = array(
+	/*
+	 * Configure your list controllers. Routes are generated automatically, but
+	 * you can also create your own routes. Route names must correspond with 
+	 * controller names.
+	 */
+	'list_controller' => array(
+		'menus' => array(
+			'name' => 'Menu', // this will be the route url and is used to generate texts
+			'controller_class' => 'MyModule\Controller\MenuListController',
+			'child_options' => array(
+				'item' => array(
+					'name' => 'Item',
+					'controller_class' => 'MyModule\Controller\MenuItemListController',
+					'list_title' => 'Menu Items', 
+					// for other options, see XelaxAdmin\Options\ListControllerOptions
+				),
+			),
+		),
+	),
+);
+
+return array(
+	'xelax' => $xelaxConfig,
+	
+    /**
+     * ZfcAdmin route role fix
+     */ 
+    'bjyauthorize' => array(
+        'guards' => array(
+            'BjyAuthorize\Guard\Route' => array(
+                array('route' => 'zfcadmin', 'roles' => array('administrator')),
+            ),
+        ),
+    ),
+);
