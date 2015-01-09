@@ -39,6 +39,9 @@ return array(
 			'XelaxAdmin\Provider\Resource\ListController' => function($sm){
 				return new \XelaxAdmin\Provider\Resource\ListController($sm);
 			}
+		),
+		'invokables' => array(
+			'XelaxAdmin\ListControllerRouteInjecter' => 'XelaxAdmin\\Service\\ListControllerRouteInjecter',
 		)
 	),
 

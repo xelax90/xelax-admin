@@ -23,6 +23,9 @@ namespace XelaxAdmin\Service;
 use Zend\ServiceManager\ServiceLocatorAwareInterface;
 use Zend\ServiceManager\ServiceLocatorInterface;
 
+use XelaxAdmin\Options\ListControllerOptions;
+
+
 class ListControllerRouteInjecter implements ServiceLocatorAwareInterface {
 	/**
 	 * @var ServiceLocatorInterface
