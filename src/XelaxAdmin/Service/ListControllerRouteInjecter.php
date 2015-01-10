@@ -58,7 +58,9 @@ class ListControllerRouteInjecter implements ServiceLocatorAwareInterface {
 			
 			/* @var $option Options\ListControllerOptions */
 			$route = $this->getListControllerRoute($name, $option);
-			$router->addRoute($routeName, $route);
+			if(!empty($route)){
+				$router->addRoute($routeName, $route);
+			}
 		}
 	}
 	
@@ -83,16 +85,33 @@ class ListControllerRouteInjecter implements ServiceLocatorAwareInterface {
 		return $router;
 	}
 	
+	protected function routeNeedsAutogenerate(\XelaxAdmin\Options\ListControllerRoute $route){
+		if(empty($route)){
+			return false;
+		}
+		
+		if($route->getDisabled()){
+			return false;
+		}
+		
+		if(!empty($route->getRoute())){
+			return false;
+		}
+		
+		return true;
+	}
+
+
 	protected function getListControllerRoute($routeBase, ListControllerOptions $options){
 		if(empty($options->getName())){
 			return null;
 		}
 		
-		if(
-			!empty($options->getListRoute()) &&
-			!empty($options->getCreateRoute()) &&
-			!empty($options->getDeleteRoute()) &&
-			!empty($options->getEditRoute())
+		if( 
+			!$this->routeNeedsAutogenerate($options->getListRoute()) &&
+			!$this->routeNeedsAutogenerate($options->getCreateRoute()) &&
+			!$this->routeNeedsAutogenerate($options->getDeleteRoute()) &&
+			!$this->routeNeedsAutogenerate($options->getEditRoute())
 		){
 			return null;
 		}
@@ -118,20 +137,24 @@ class ListControllerRouteInjecter implements ServiceLocatorAwareInterface {
 		}
 
 		
-		if(empty($options->getListRoute())){
+		if($this->routeNeedsAutogenerate($options->getListRoute())){
 			$route['child_routes']['list'] = $this->getSegmentConfig('/list[/:p]', $options->getControllerClass(), 'list', array(), array('p' => '[0-9]*'));
+			$options->getListRoute()->setRoute($routeBase.'/'.'list');
 		}
 		
-		if(empty($options->getCreateRoute())){
+		if($this->routeNeedsAutogenerate($options->getCreateRoute())){
 			$route['child_routes']['create'] = $this->getLiteralConfig('/create', $options->getControllerClass(), 'create');
+			$options->getCreateRoute()->setRoute($routeBase.'/'.'create');
 		}
 		
-		if(empty($options->getEditRoute())){
+		if($this->routeNeedsAutogenerate($options->getEditRoute())){
 			$route['child_routes']['edit'] = $this->getSegmentConfig('/:'.$options->getEditParamName().'/edit', $options->getControllerClass(), 'edit', array($options->getEditParamName() => 0), array($options->getEditParamName() => '[0-9]+'));
+			$options->getEditRoute()->setRoute($routeBase.'/'.'edit');
 		}
 		
-		if(empty($options->getDeleteRoute())){
-			$route['child_routes']['edit'] = $this->getSegmentConfig('/:'.$options->getEditParamName().'/delete', $options->getControllerClass(), 'delete', array($options->getDeleteParamName() => 0), array($options->getDeleteParamName() => '[0-9]+'));
+		if($this->routeNeedsAutogenerate($options->getDeleteRoute())){
+			$route['child_routes']['delete'] = $this->getSegmentConfig('/:'.$options->getDeleteParamName().'/delete', $options->getControllerClass(), 'delete', array($options->getDeleteParamName() => 0), array($options->getDeleteParamName() => '[0-9]+'));
+			$options->getDeleteRoute()->setRoute($routeBase.'/'.'delete');
 		}
 		
 		// TODO: Custom child-routes

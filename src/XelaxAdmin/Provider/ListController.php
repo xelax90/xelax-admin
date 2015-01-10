@@ -18,31 +18,33 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-namespace XelaxAdmin\Provider\Resource;
+namespace XelaxAdmin\Provider;
 
-use BjyAuthorize\Provider\Resource\ProviderInterface;
+use BjyAuthorize\Provider\Rule\ProviderInterface as RuleProvider;
+use BjyAuthorize\Provider\Resource\ProviderInterface as ResourceProvider;
 use Zend\ServiceManager\ServiceLocatorInterface;
 use XelaxAdmin\Options\ListControllerOptions;
 
 /**
- * Resource Provider for ListControllers
+ * Rule provider for ListControllers
  */
-class ListController implements ProviderInterface
+class ListController implements RuleProvider, ResourceProvider
 {
     /**
-     * @var \Zend\Permissions\Acl\Resource\ResourceInterface[]
-     */
-    protected $resources = null;
-
-   /**
      * @var ServiceLocatorInterface
      */
     protected $sl;
 	
+	/**
+	 * @var array
+	 */
+	protected $rules;
+	
     /**
+	 * @param array $config
      * @param ServiceLocatorInterface $sl
      */
-    public function __construct(ServiceLocatorInterface $sl)
+    public function __construct($config, ServiceLocatorInterface $sl)
     {
         $this->sl = $sl;
     }
@@ -54,32 +56,47 @@ class ListController implements ProviderInterface
 		return $this->sl;
 	}
 	
-    /**
+	/**
      * {@inheritDoc}
      */
-    public function getResources($routeBase = '/', ListControllerOptions $options = null)
+    public function getRules($routeBase = '/', ListControllerOptions $options = null)
     {
-		if ($this->resources !== null) {
-			return $this->resources;
+		if ($this->rules !== null) {
+			return $this->rules;
 		}
 		
 		if($options === null){
 			$options = $this->getServiceLocator()->get('XelaxAdmin\ListControllerOptions');
-			$resources = array();
+			$rules = array();
 			foreach ($options as $name => $option){
 				/* @var $option Options\ListControllerOptions */
-				$resources = array_merge($resources, $this->getResources('/'.$name, $option));
+				$rules = array_merge($rules, $this->getRules('/'.$name, $option)['allow']);
 			}
-			$this->resources = $resources;
-			return $this->resources;
+			$this->rules = array('allow' => $rules);
+			return $this->rules;
 		}
 		
-		$resources = array();
+		$rules = array();
 		$childRoutes = array('list', 'create', 'edit', 'delete');
 		foreach($childRoutes as $childRoute){
-			// [ ['group1', 'group2', ...], 'resource name' ] 
-			$resources[] = 'route'.$routeBase.'/'.$childRoute;
+			$getter = 'get'.ucfirst($childRoute).'Route';
+			/* @var $route \XelaxAdmin\Options\ListControllerRoute */
+			$route = $options->$getter();
+			if(!$route->getDisabled()){
+				// [ ['group1', 'group2', ...], 'resource name' ]
+				$rules[] = [$route->getAllowedRoles(), 'route/'.$route->getRoute()];
+			}
+		}
+		return array('allow' => $rules);
+	}
+
+	public function getResources() {
+		$rules = $this->getRules();
+		$resources = array();
+		foreach($rules['allow'] as $rule){
+			$resources[] = $rule[1];
 		}
 		return $resources;
-    }
+	}
+
 }

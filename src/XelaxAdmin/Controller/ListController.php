@@ -232,7 +232,7 @@ abstract class ListController extends AbstractActionController{
 	}
 	
 	public function _redirectToList(){
-		return $this->redirect()->toRoute($this->getOptions()->getListRoute(), $this->buildRouteParams());
+		return $this->redirect()->toRoute($this->getOptions()->getListRoute()->getRoute(), $this->buildRouteParams());
 	}
 	
 	public function buildRouteParams(){

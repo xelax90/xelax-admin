@@ -64,11 +64,11 @@ return array(
 
 	'bjyauthorize' => array(
         'resource_providers' => array(
-			"XelaxAdmin\Provider\Resource\ListController" => null,
+			"XelaxAdmin\Provider\ListController" => null,
         ),
 		
 		'rule_providers' => array(
-			"XelaxAdmin\Provider\Rule\ListController" => null,
+			"XelaxAdmin\Provider\ListController" => null,
 		),
 	),
 );

@@ -49,13 +49,13 @@ class ListControllerOptions extends AbstractOptions
 	/** @var string Create view heading */
 	protected $createTitle;
 	
-	/** @var string route to list */
+	/** @var ListControllerRoute route to list. Leave empty to auto-generate */
 	protected $listRoute;
-	/** @var string route to create */
+	/** @var ListControllerRoute route to create. Leave empty to auto-generate */
 	protected $createRoute;
-	/** @var string route to edit */
+	/** @var ListControllerRoute route to edit. Leave empty to auto-generate */
 	protected $editRoute;
-	/** @var string route to delete */
+	/** @var ListControllerRoute route to delete. Leave empty to auto-generate */
 	protected $deleteRoute;
 	
 	/** @var string Prompt when clicking delete */
@@ -103,18 +103,30 @@ class ListControllerOptions extends AbstractOptions
 	}
 
 	public function getListRoute() {
+		if(empty($this->listRoute)){
+			$this->setListRoute(array());
+		}
 		return $this->listRoute;
 	}
 
 	public function getCreateRoute() {
+		if(empty($this->createRoute)){
+			$this->setCreateRoute(array());
+		}
 		return $this->createRoute;
 	}
 
 	public function getEditRoute() {
+		if(empty($this->editRoute)){
+			$this->setEditRoute(array());
+		}
 		return $this->editRoute;
 	}
 
 	public function getDeleteRoute() {
+		if(empty($this->deleteRoute)){
+			$this->setDeleteRoute(array());
+		}
 		return $this->deleteRoute;
 	}
 
@@ -192,21 +204,33 @@ class ListControllerOptions extends AbstractOptions
 	}
 
 	public function setListRoute($listRoute) {
+		if(!$listRoute instanceof ListControllerRoute){
+			$listRoute = new ListControllerRoute($listRoute);
+		}
 		$this->listRoute = $listRoute;
 		return $this;
 	}
 
 	public function setCreateRoute($createRoute) {
+		if(!$createRoute instanceof ListControllerRoute){
+			$createRoute = new ListControllerRoute($createRoute);
+		}
 		$this->createRoute = $createRoute;
 		return $this;
 	}
 
 	public function setEditRoute($editRoute) {
+		if(!$editRoute instanceof ListControllerRoute){
+			$editRoute = new ListControllerRoute($editRoute);
+		}
 		$this->editRoute = $editRoute;
 		return $this;
 	}
 
 	public function setDeleteRoute($deleteRoute) {
+		if(!$deleteRoute instanceof ListControllerRoute){
+			$deleteRoute = new ListControllerRoute($deleteRoute);
+		}
 		$this->deleteRoute = $deleteRoute;
 		return $this;
 	}
@@ -336,6 +360,22 @@ class ListControllerOptions extends AbstractOptions
 		
 		if(empty($this->aliasName)){
 			$this->aliasName = 'alias';
+		}
+		
+		if(empty($this->listRoute)){
+			$this->setListRoute(array());
+		}
+		
+		if(empty($this->createRoute)){
+			$this->setCreateRoute(array());
+		}
+		
+		if(empty($this->editRoute)){
+			$this->setEditRoute(array());
+		}
+		
+		if(empty($this->deleteRoute)){
+			$this->setDeleteRoute(array());
 		}
 	}
 }
