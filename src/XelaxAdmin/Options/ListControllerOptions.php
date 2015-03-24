@@ -42,6 +42,9 @@ class ListControllerOptions extends AbstractOptions
 	protected $name;
 	/** @var string Full class name of the controller. Used to generate routes */
 	protected $controllerClass;
+	/** @var string Module namespace for generating Entity and Form class */
+	protected $baseNamespace;
+	
 	
 	/** @var string List view heading */
 	protected $listTitle;
@@ -285,7 +288,16 @@ class ListControllerOptions extends AbstractOptions
 		$this->routeBase = $routeBase;
 		return $this;
 	}
-		
+	
+	public function getBaseNamespace() {
+		return $this->baseNamespace;
+	}
+
+	public function setBaseNamespace($baseNamespace) {
+		$this->baseNamespace = $baseNamespace;
+		return $this;
+	}
+
 	public function __construct($options = null) {
 		if(!empty($options['parent_options'])){ // this should not be used I guess..
 			$parentOptions = new static($options['parent_options']);
@@ -309,7 +321,6 @@ class ListControllerOptions extends AbstractOptions
 		parent::__construct($options);
 		
 		// generate missing values
-		
 		if(empty($this->listTitle)){
 			$this->listTitle = $this->name . 's';
 		}

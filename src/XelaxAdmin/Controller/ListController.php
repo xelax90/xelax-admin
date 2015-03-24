@@ -148,11 +148,15 @@ class ListController extends AbstractActionController{
 	 * @throws \Exception
 	 */
 	private function getBaseNamespace(){
-		$parts = explode("\\", get_class($this));
-		if(count($parts) <= 1){
-			throw new \Exception('Empty entity namespace');
+		$options = $this->getOptions();
+		if(empty($options->getBaseNamespace())){
+			$parts = explode("\\", get_class($this));
+			if(count($parts) <= 1){
+				throw new \Exception('Empty entity namespace');
+			}
+			return $parts[0];
 		}
-		return $parts[0];
+		return $options->getBaseNamespace();
 	}
 	
 	/**
