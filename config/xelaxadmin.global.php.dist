@@ -27,7 +27,8 @@ $xelaxConfig = array(
 	'list_controller' => array(
 		'menus' => array(
 			'name' => 'Menu', // this will be the route url and is used to generate texts
-			'controller_class' => 'MyModule\Controller\MenuListController',
+			// You can subclass the ListController for better control
+			'controller_class' => 'XelaxAdmin\Controller\ListController', 
 			// route_base defaults to the config key ('menus' in this case). 
 			'route_base' => 'menus_foo', // only available at top-level options
 			'create_route' => array(
@@ -42,7 +43,7 @@ $xelaxConfig = array(
 			'child_options' => array(
 				'item' => array(
 					'name' => 'Item',
-					'controller_class' => 'MyModule\Controller\MenuItemListController',
+					'controller_class' => 'XelaxAdmin\Controller\ListController',
 					'list_title' => 'Menu Items', 
 					'create_route' => array(
 						'allowed_roles' => array('moderator'),
@@ -84,8 +85,9 @@ $guardConfig = array(
 	array('route' => 'menus_foo', 'roles' => array('user', 'guest')),
 );
 
+
 return array(
-	'xelax' => $xelaxConfig,
+    'xelax' => $xelaxConfig,
 	'router' => array(
 		'routes' => $routerConfig,
 	),
