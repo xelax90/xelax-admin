@@ -35,11 +35,11 @@ class ListControllerRoute {
 		if (isset($options['route'])) {
 			$this->route = $options['route'];
 		}
-		if (isset($options['allowed_routes'])) {
-			$this->allowedRoles = $allowedRoles;
+		if (isset($options['allowed_roles'])) {
+			$this->allowedRoles = $options['allowed_roles'];
 		}
 		if (isset($options['disabled'])) {
-			$this->disabled = $disabled;
+			$this->disabled = $options['disabled'];
 		}
 	}
 	

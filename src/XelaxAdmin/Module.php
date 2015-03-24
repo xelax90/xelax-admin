@@ -29,7 +29,7 @@ class Module
 		$sm = $app->getServiceManager();
 		
 		// Inject routes for ListControllers
-		$sm->get('XelaxAdmin\ListControllerRouteInjecter')->addListControllerRoutes();
+		//$sm->get('XelaxAdmin\ListControllerRouteInjecter')->addListControllerRoutes();
     }
 	
     public function getConfig()

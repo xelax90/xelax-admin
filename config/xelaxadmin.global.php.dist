@@ -28,11 +28,31 @@ $xelaxConfig = array(
 		'menus' => array(
 			'name' => 'Menu', // this will be the route url and is used to generate texts
 			'controller_class' => 'MyModule\Controller\MenuListController',
+			// route_base defaults to the config key ('menus' in this case). 
+			'route_base' => 'menus_foo', // only available at top-level options
+			'create_route' => array(
+				'allowed_roles' => array('moderator'),
+			),
+			'edit_route' => array(
+				'allowed_roles' => array('moderator'),
+			),
+			'delete_route' => array(
+				'allowed_roles' => array('administrator'),
+			),
 			'child_options' => array(
 				'item' => array(
 					'name' => 'Item',
 					'controller_class' => 'MyModule\Controller\MenuItemListController',
 					'list_title' => 'Menu Items', 
+					'create_route' => array(
+						'allowed_roles' => array('moderator'),
+					),
+					'edit_route' => array(
+						'allowed_roles' => array('moderator'),
+					),
+					'delete_route' => array(
+						'allowed_roles' => array('administrator'),
+					),
 					// for other options, see XelaxAdmin\Options\ListControllerOptions
 				),
 			),
@@ -40,17 +60,47 @@ $xelaxConfig = array(
 	),
 );
 
+$routerConfig = array(
+	/**
+	 * Configure the routes pointing to the list.
+	 * The route name can be chosen arbitrary, but has to be linked in 
+	 * the controller options as 'route_base' if it differs from the options key
+	 */
+	'menus_foo' => array(
+		'type' => 'XelaxAdmin\Router\ListRoute',
+		'options' => array(
+			// the config key of the options
+			'controller_options_name' => 'menus',
+		),
+	),
+);
+
+$guardConfig = array(
+	/**
+	 * Each route needs a guard, or it cannot be accessed.
+	 * The Access control inside the list controller options is an additional filter.
+	 * You can make the route unrestricted and restrict access to specific actions inside the list controller
+	 */
+	array('route' => 'menus_foo', 'roles' => array('user', 'guest')),
+);
+
 return array(
 	'xelax' => $xelaxConfig,
+	'router' => array(
+		'routes' => $routerConfig,
+	),
 	
     /**
      * ZfcAdmin route role fix
      */ 
     'bjyauthorize' => array(
         'guards' => array(
-            'BjyAuthorize\Guard\Route' => array(
-                array('route' => 'zfcadmin', 'roles' => array('administrator')),
-            ),
+            'BjyAuthorize\Guard\Route' => array_merge(
+				array(
+					array('route' => 'zfcadmin', 'roles' => array('administrator')),
+				),
+				$guardConfig
+			),
         ),
     ),
 );

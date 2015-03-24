@@ -26,13 +26,16 @@ use XelaxAdmin\Options\ListControllerOptions;
 use Doctrine\ORM\EntityManager;
 use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
 
-abstract class ListController extends AbstractActionController{
+class ListController extends AbstractActionController{
 	
 	/** @var \Doctrine\ORM\EntityManager */
 	protected $em;
 	
 	/** @var \XelaxAdmin\Options\ListControllerOptions */
 	protected $options = null;
+	
+	/** @var string */
+	protected $privilegeBase = null;
 	
 	/**
 	 * @param EntityManager $em
@@ -52,23 +55,24 @@ abstract class ListController extends AbstractActionController{
 	}
 	
 	/**
-	 * Returns name of this controler. Used to auto-generate options and entity names
+	 * Returns active Option name. Used to auto-generate options and entity names
 	 * @return string
 	 * @throws \Exception
 	 */
 	public function getName(){
-		$classname = get_class($this);
-		
-		$parts = explode("\\", $classname);
-		$classname = $parts[count($parts) - 1];
-		
-		$classname = preg_replace('/ListController$/', '', $classname);
-		$classname = preg_replace('/Controller$/', '', $classname);
-		
-		if (empty($classname)) {
-			throw new \Exception('Empty name');
+		$name = $this->getOptions()->getName();
+		if(empty($name)){
+			$parts = explode("\\", get_class($this));
+			$name = array_pop($parts);
+			
+			$name = preg_replace('/ListController$/', '', $name);
+			$name = preg_replace('/Controller$/', '', $name);
+			
+			if (empty($name)) {
+				throw new \Exception('Empty name');
+			}
 		}
-		return $classname;
+		return $name;
 	}
 	
 	/**
@@ -87,79 +91,82 @@ abstract class ListController extends AbstractActionController{
 		return $this->getOptions()->getParentOptions();
 	}
 	
+	function getPrivilegeBase() {
+		if(null === $this->privilegeBase){
+			$routeMatch = $this->getEvent()->getRouteMatch();
+			$privilege = $routeMatch->getParam('xelax_admin_privilege');
+			if(empty($privilege)){
+				throw new Exception('XelaxAdmin\Router\ListRoute route required');
+			}
+			$parts = explode('/', $privilege);
+			$action = array_pop($parts);
+			$this->privilegeBase = implode('/', $parts);
+		}
+		return $this->privilegeBase;
+	}
+	
 	/**
-	 * Tries to auto-generate controller's options
-	 * @return type
+	 * Gets active controllerOptions depending on the RouteMatch
+	 * @return ListControllerOptions|null
+	 * @throws \Exception
 	 */
 	public function getOptions(){
-		if(null !== $this->options){
+		if(null === $this->options){
+			$routeMatch = $this->getEvent()->getRouteMatch();
+			$privilege = $routeMatch->getParam('xelax_admin_privilege');
+			if(empty($privilege)){
+				throw new Exception('XelaxAdmin\Router\ListRoute route required');
+			}
+			
 			$options = $this->getServiceLocator()->get('XelaxAdmin\ListControllerOptions');
-			$this->options = $this->findActiveOptions($options);
+			$activeOption = null;
+			$parts = explode('/', $privilege);
+			$action = array_pop($parts);
+			foreach ($parts as $part){
+				if(array_key_exists($part, $options)){
+					$activeOption = $options[$part];
+					$options = $activeOption->getChildOptions();
+				} else {
+					throw new Exception("Active ListControllerOptions not found");
+				}
+			}
+			
+			if(empty($activeOption)){
+				throw new Exception("Active ListControllerOptions not found");
+			}
+			
+			$this->options = $activeOption;
 		}
 		return $this->options;
 	}
 	
 	/**
-	 * Tries to find the ListControllerOptions for the active route
+	 * Returns module namespace of active controller for generating other namespaces
+	 * TODO: this should be configurable in ListControllerOptions
 	 * 
-	 * @param type $options
-	 * @param type $routes
-	 * @return type
-	 * @throws Exception
+	 * @return string
+	 * @throws \Exception
 	 */
-	private function findActiveOptions($options, $routes = null){
-		if ($routes === null) {
-			$routeName = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
-			$routes = explode('/', $routeName);
-		}
-		
-		foreach($options as $key => $option){
-			/* @var $option \XelaxAdmin\Options\ListControllerOptions */
-			
-			// see if key matches route
-			$keyParts = explode('/', $key);
-			$commonStart = $this->arrayEqualStartLength($routes, $keyParts);
-			if($commonStart == count($keyParts)){
-				// remove the matching route start
-				array_splice($routes, 0, $commonStart);
-				if(empty($routes)){
-					// return option if we are at the desired position
-					return $option;
-				}
-				// look for children if there are stil route parts left
-				return $this->findActiveOptions($option->getChildOptions(), $routes);
-			}
-		}
-		
-		throw new Exception('No active ListControllerOptions found');
-	}
-	
-	private function arrayEqualStartLength($a1, $a2){
-		$length = 0;
-		while(!empty($a1) && !empty($a2)){
-			if(array_shift($a1) == array_shift($a2)){
-				$length++;
-			} else {
-				break;
-			}
-		}
-		return $length;
-	}
-	
 	private function getBaseNamespace(){
-		$classname = get_class($this);
-		$parts = explode("\\", $classname);
+		$parts = explode("\\", get_class($this));
 		if(count($parts) <= 1){
 			throw new \Exception('Empty entity namespace');
 		}
 		return $parts[0];
-		
 	}
 	
+	/**
+	 * Returns namespace for entities
+	 * @return string
+	 */
 	private function getEntityNamespace(){
 		return $this->getBaseNamespace()."\\Entity";
 	}
 	
+	/**
+	 * Returns namespace for forms
+	 * @return string
+	 */
 	private function getFormNamespace(){
 		return $this->getBaseNamespace()."\\Form";
 	}
@@ -177,7 +184,7 @@ abstract class ListController extends AbstractActionController{
 	}
 	
 	/**
-	 * @param type $id
+	 * @param int|null $id
 	 * @return Object
 	 */
 	protected function getItem($id = null){
@@ -232,18 +239,86 @@ abstract class ListController extends AbstractActionController{
 	}
 	
 	public function _redirectToList(){
-		return $this->redirect()->toRoute($this->getOptions()->getListRoute()->getRoute(), $this->buildRouteParams());
+		return $this->redirect()->toRoute($this->getOptions()->getRouteBase(), $this->buildRouteParams());
 	}
 	
-	public function buildRouteParams(){
+	public function buildRouteParams($action = 'list'){
 		$params = array();
 		$options = $this->getOptions();
+		$match = $this->getEvent()->getRouteMatch();
 		while(!empty($options)){
-			$id = $this->getEvent()->getRouteMatch()->getParam($options->getChildRouteParamName());
-			$params[$options->getChildRouteParamName()] = $id;
+			$id = $match->getParam($options->getIdParamName(), "");
+			if(!empty($id)){
+				$params[$options->getIdParamName()] = $id;
+			}
+			
+			$alias = $match->getParam($options->getAliasParamName(), "");
+			if(!empty($alias)){
+				$params[$options->getAliasParamName()] = $alias;
+			}
+			
 			$options = $options->getParentOptions();
 		}
+		$params['route'] = $this->getPrivilegeBase()."/".$action;
 		return $params;
+	}
+	
+	protected function isAllowed($privilege){
+		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
+		
+		$service    = $this->serviceLocator->get('BjyAuthorize\Service\Authorize');
+		return $service->isAllowed('xelax-route/' . $routeName, $privilege);
+	}
+	
+	public function buildRoute($action = 'list', $checkACL = true){
+		$params = $this->buildRouteParams($action);
+		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
+		
+		if($checkACL && !$this->isAllowed($params['route'])){
+			return false;
+		}
+		
+		return $this->url()->fromRoute($routeName, $params);
+	}
+	
+	public function buildChildRoute($child, $id, $alias = '', $action = 'list', $checkACL = true){
+		$options = $this->getOptions();
+		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
+		
+		if(empty($this->getChildControllerOptions()[$child])){
+			return false;
+		}
+		
+		$params = $this->buildRouteParams($action);
+		$params[$options->getIdParamName()] = $id;
+		$params[$options->getAliasParamName()] = $alias;
+		
+		$params['route'] = $this->getPrivilegeBase()."/".$child."/".$action;
+		
+		if($checkACL && !$this->isAllowed($params['route'])){
+			return false;
+		}
+		
+		return $this->url()->fromRoute($routeName, $params);
+	}
+	
+	public function buildParentRoute($action = 'list', $checkACL = true){
+		$params = $this->buildRouteParams($action);
+		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
+		
+		$privilegeParts = explode("/", $this->getPrivilegeBase());
+		array_pop($privilegeParts);
+		if(empty($privilegeParts)){
+			return false;
+		}
+		array_push($privilegeParts, $action);
+		$params['route'] = implode('/', $privilegeParts);
+		
+		if($checkACL && !$this->isAllowed($params['route'])){
+			return false;
+		}
+		
+		return $this->url()->fromRoute($routeName, $params);
 	}
 	
 	public function listAction(){
@@ -251,11 +326,7 @@ abstract class ListController extends AbstractActionController{
 		
 		$params = array(
 			'title' => $this->getOptions()->getListTitle(),
-			'list_route' => $this->getOptions()->getListRoute(),
-			'create_route' => $this->getOptions()->getCreateRoute(),
-			'edit_route' => $this->getOptions()->getEditRoute(),
-			'delete_route' => $this->getOptions()->getDeleteRoute(),
-			'route_params' => $this->buildRouteParams(),
+			'route_builder' => array($this, 'buildRoute'),
 			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
 			'create_text' => $this->getOptions()->getCreateText(),
 			'columns' => $this->getOptions()->getListColumns(),
@@ -266,11 +337,12 @@ abstract class ListController extends AbstractActionController{
 		);
 		
 		if(!empty($this->getChildControllerOptions())){
-			$params['sublist_route'] = $this->getChildControllerOptions()->getListRoute();
+			$params['sublist_names'] = array_keys($this->getChildControllerOptions());
+			$params['sublist_route_builder'] = array($this, 'buildChildRoute');
 		}
 		
 		if(!empty($this->getParentControllerOptions())){
-			$params['parent_route'] = $this->getParentControllerOptions()->getListRoute();
+			$params['parent_route_builder'] = array($this, 'buildParentRoute');
 		}
 		
 		return $this->_showList($params);
@@ -299,9 +371,7 @@ abstract class ListController extends AbstractActionController{
         }
 		$params = array(
 			'title' => $this->getOptions()->getCreateTitle(),
-			'list_route' => $this->getOptions()->getListRoute(),
-			'create_route' => $this->getOptions()->getCreateRoute(),
-			'route_params' => $this->buildRouteParams(),
+			'route_builder' => array($this, 'buildRoute'),
 			'form' => $form,
 		);
 		return $this->_showCreateForm($params);
@@ -348,7 +418,7 @@ abstract class ListController extends AbstractActionController{
 	}
 		
     public function editAction(){
-		$id = $this->getEvent()->getRouteMatch()->getParam($this->getOptions()->getEditParamName());
+		$id = $this->getEvent()->getRouteMatch()->getParam($this->getOptions()->getIdParamName());
         $item = $this->getItem($id);
 		
         $form = $this->getEditForm();
@@ -360,10 +430,7 @@ abstract class ListController extends AbstractActionController{
 
 		$params = array(
 			'title' => $this->getOptions()->getEditTitle(),
-			'list_route' => $this->getOptions()->getListRoute(),
-			'edit_route' => $this->getOptions()->getEditRoute(),
-			'delete_route' => $this->getOptions()->getDeleteRoute(),
-			'route_params' => $this->buildRouteParams(),
+			'route_builder' => array($this, 'buildRoute'),
 			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
             'form' => $form,
             'id' => $id
@@ -416,7 +483,7 @@ abstract class ListController extends AbstractActionController{
 	}
 
 	public function deleteAction(){
-		$id = $this->getEvent()->getRouteMatch()->getParam($this->getOptions()->getDeleteParamName());
+		$id = $this->getEvent()->getRouteMatch()->getParam($this->getOptions()->getIdParamName());
 
 		if (!$id) {
 			return $this->_redirectToList();

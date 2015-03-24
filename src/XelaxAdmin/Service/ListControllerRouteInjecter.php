@@ -164,7 +164,7 @@ class ListControllerRouteInjecter implements ServiceLocatorAwareInterface {
 	
 	protected function getLiteralConfig($route, $controller, $action){
 		return array(
-			'type' => 'Literal',
+			'type' => 'XelaxAdmin\Router\XelaxAdmin',
 			'options' => array(
 				'route' => $route,
 				'defaults' => array(

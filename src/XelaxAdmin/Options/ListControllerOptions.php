@@ -26,6 +26,7 @@ class ListControllerOptions extends AbstractOptions
 {
 	/** 
 	 * Options of parent controller
+	 * Could make some wierd effects when set in config
 	 * @var ListControllerOptions 
 	 */
 	protected $parentOptions = null;
@@ -49,6 +50,9 @@ class ListControllerOptions extends AbstractOptions
 	/** @var string Create view heading */
 	protected $createTitle;
 	
+	/** @var string The name of the route pointing to this option (defaults to the config key) */
+	protected $routeBase;
+	
 	/** @var ListControllerRoute route to list. Leave empty to auto-generate */
 	protected $listRoute;
 	/** @var ListControllerRoute route to create. Leave empty to auto-generate */
@@ -68,14 +72,10 @@ class ListControllerOptions extends AbstractOptions
 	/** @var string number of items per page in list view */
 	protected $pageLength;
 	
-	/** @var string Id parameter name in delete route */
-	protected $deleteParamName;
-	/** @var string Id parameter name in edit route */
-	protected $editParamName;
+	/** @var string Id parameter for all views and child controllers */
+	protected $idParamName;
 	/** @var string Alias parameter name for all view and child controllers */
 	protected $aliasParamName;
-	/** @var string Id parameter name for child controllers */
-	protected $childRouteParamName;
 	
 	/** @var string name of id parameter. Function name 'get'.ucfirst($idName) will be used to get the id */
 	protected $idName;
@@ -146,20 +146,12 @@ class ListControllerOptions extends AbstractOptions
 		return $this->pageLength;
 	}
 
-	public function getDeleteParamName() {
-		return $this->deleteParamName;
-	}
-
-	public function getEditParamName() {
-		return $this->editParamName;
-	}
-
 	public function getAliasParamName() {
 		return $this->aliasParamName;
 	}
 
-	public function getChildRouteParamName() {
-		return $this->childRouteParamName;
+	public function getIdParamName() {
+		return $this->idParamName;
 	}
 
 	public function getIdName() {
@@ -176,6 +168,10 @@ class ListControllerOptions extends AbstractOptions
 
 	public function getChildOptions() {
 		return $this->childOptions;
+	}
+
+	public function getRouteBase() {
+		return $this->routeBase;
 	}
 
 	public function setName($name) {
@@ -255,23 +251,13 @@ class ListControllerOptions extends AbstractOptions
 		return $this;
 	}
 
-	public function setDeleteParamName($deleteParamName) {
-		$this->deleteParamName = $deleteParamName;
-		return $this;
-	}
-
-	public function setEditParamName($editParamName) {
-		$this->editParamName = $editParamName;
-		return $this;
-	}
-
 	public function setAliasParamName($aliasParamName) {
 		$this->aliasParamName = $aliasParamName;
 		return $this;
 	}
 
-	public function setChildRouteParamName($childRouteParamName) {
-		$this->childRouteParamName = $childRouteParamName;
+	public function setIdParamName($IdParamName) {
+		$this->idParamName = $idParamName;
 		return $this;
 	}
 
@@ -295,16 +281,26 @@ class ListControllerOptions extends AbstractOptions
 		return $this;
 	}
 	
+	public function setRouteBase($routeBase) {
+		$this->routeBase = $routeBase;
+		return $this;
+	}
+		
 	public function __construct($options = null) {
-		if(!empty($options['parent_options'])){
-			$parentOptions = new self($options['parent_options']);
+		if(!empty($options['parent_options'])){ // this should not be used I guess..
+			$parentOptions = new static($options['parent_options']);
 			$options['parent_options'] = $parentOptions;
 		}
 		
 		if(!empty($options['child_options'])){
 			$childOptions = array();
 			foreach($options['child_options'] as $key => $option){
-				$child = new self($option);
+				if(!empty($options['child_options']['route_base'])){
+					// ignore route base on children
+					$options['child_options']['route_base'] = null;
+				}
+				$child = new static($option);
+				$child->setParentOptions($this);
 				$childOptions[$key] = $child;
 			}
 			$options['child_options'] = $childOptions;
@@ -338,20 +334,12 @@ class ListControllerOptions extends AbstractOptions
 			$this->pageLength = 10;
 		}
 		
-		if(empty($this->deleteParamName)){
-			$this->deleteParamName = 'id';
-		}
-		
-		if(empty($this->editParamName)){
-			$this->editParamName = 'id';
-		}
-		
 		if(empty($this->aliasParamName)){
 			$this->aliasParamName = 'alias';
 		}
 		
-		if(empty($this->childRouteParamName)){
-			$this->childRouteParamName = strtolower($this->name).'_id';
+		if(empty($this->idParamName)){
+			$this->idParamName = strtolower($this->name).'_id';
 		}
 		
 		if(empty($this->idName)){
