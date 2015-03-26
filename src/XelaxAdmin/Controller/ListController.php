@@ -274,7 +274,7 @@ class ListController extends AbstractActionController{
 		return $service->isAllowed('xelax-route/' . $routeName, $privilege);
 	}
 	
-	public function buildRoute($action = 'list', $checkACL = true){
+	public function buildRoute($action = 'list', $id = 0, $alias = '', $checkACL = true){
 		$params = $this->buildRouteParams($action);
 		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
 		
@@ -282,10 +282,18 @@ class ListController extends AbstractActionController{
 			return false;
 		}
 		
+		if(!empty($id) && $action != 'list'){
+			$options = $this->getOptions();
+			$params[$options->getIdParamName()] = $id;
+			$params[$options->getAliasParamName()] = $alias;
+		} else {
+			$params['p'] = $id;
+		}
+		
 		return $this->url()->fromRoute($routeName, $params);
 	}
 	
-	public function buildChildRoute($child, $id, $alias = '', $action = 'list', $checkACL = true){
+	public function buildChildRoute($child, $id, $alias = '', $action = 'list', $childId = 0, $childAlias = '', $checkACL = true){
 		$options = $this->getOptions();
 		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
 		
@@ -297,6 +305,12 @@ class ListController extends AbstractActionController{
 		$params[$options->getIdParamName()] = $id;
 		$params[$options->getAliasParamName()] = $alias;
 		
+		if(!empty($childId)){
+			$childOptions = $this->getChildControllerOptions()[$child];
+			$params[$childOptions->getIdParamName()] = $childId;
+			$params[$childOptions->getAliasParamName()] = $childAlias;
+		}
+		
 		$params['route'] = $this->getPrivilegeBase()."/".$child."/".$action;
 		
 		if($checkACL && !$this->isAllowed($params['route'])){
@@ -306,7 +320,7 @@ class ListController extends AbstractActionController{
 		return $this->url()->fromRoute($routeName, $params);
 	}
 	
-	public function buildParentRoute($action = 'list', $checkACL = true){
+	public function buildParentRoute($action = 'list', $id = 0, $alias = '', $checkACL = true){
 		$params = $this->buildRouteParams($action);
 		$routeName  = $this->getEvent()->getRouteMatch()->getMatchedRouteName();
 		
@@ -322,15 +336,32 @@ class ListController extends AbstractActionController{
 			return false;
 		}
 		
+		if(!empty($id)){
+			$parentOptions = $this->getParentControllerOptions();
+			$params[$parentOptions->getIdParamName()] = $id;
+			$params[$parentOptions->getAliasParamName()] = $alias;
+		}
+		
 		return $this->url()->fromRoute($routeName, $params);
+	}
+	
+	public function createGetter($param){
+		if(empty($param)){
+			return "";
+		}
+		$parts = explode('_', $param);
+		array_walk($parts, function (&$val) {
+			$val = ucfirst($val);
+		});
+		return 'get' . implode('', $parts);
 	}
 	
 	public function listAction(){
 		$items = $this->getAll();
-		
 		$params = array(
 			'title' => $this->getOptions()->getListTitle(),
 			'route_builder' => array($this, 'buildRoute'),
+			'getter_creator' => array($this, 'createGetter'),
 			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
 			'create_text' => $this->getOptions()->getCreateText(),
 			'columns' => $this->getOptions()->getListColumns(),
@@ -431,13 +462,13 @@ class ListController extends AbstractActionController{
             $this->flashMessenger()->addSuccessMessage('The '.$this->getName().' was edited');
             return $this->_redirectToList();
 		}
-
 		$params = array(
 			'title' => $this->getOptions()->getEditTitle(),
 			'route_builder' => array($this, 'buildRoute'),
 			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
             'form' => $form,
-            'id' => $id
+            'id' => call_user_func(array($item, $this->createGetter($this->getOptions()->getIdName()))),
+            'alias' => call_user_func(array($item, $this->createGetter($this->getOptions()->getAliasName()))),
 		);
 		return $this->_showEditForm($params);
     }
@@ -488,7 +519,6 @@ class ListController extends AbstractActionController{
 
 	public function deleteAction(){
 		$id = $this->getEvent()->getRouteMatch()->getParam($this->getOptions()->getIdParamName());
-
 		if (!$id) {
 			return $this->_redirectToList();
 		}

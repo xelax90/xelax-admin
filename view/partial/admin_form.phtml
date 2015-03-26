@@ -1,0 +1,70 @@
+<?php
+
+/* 
+ * Copyright (C) 2015 schurix
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+
+?>
+<script type="text/javascript">
+	jQuery(function($){
+		$(function(){
+			$("span[data-template]").each(function(){
+				var addElement = function(){
+					var that = this;
+					var $fieldset = $(that).closest('fieldset');
+					var currentCount = $fieldset.find('fieldset').length;
+					console.log(currentCount);
+					if(currentCount >= 8)
+						return false;
+					var template = $fieldset.find("span[data-template]").data('template');
+					template = template.replace(/__index__/g, currentCount);
+					//var fieldsetLabel = $(that).parent().find('legend').text().replace(/s$/,'');
+					var temp = $(template);//.prepend('<label>'+fieldsetLabel + ' ' +(currentCount + 1)+'</label>');
+					$fieldset.find('fieldset:last').after(temp);
+					return false;
+				};
+
+				var btn = $('<button>').addClass("btn btn-success");
+				btn.append('<i class="glyphicon glyphicon-plus"></i> Add');
+				btn.click(addElement);
+				var cont = $('<div>').addClass('btn-group btn-group-justified').attr('role', 'group').attr('aria-label', 'Element hinzufügen').append($('<div>').addClass('btn-group').attr('role', 'group').append(btn));
+				$(this).closest('fieldset').append(
+						$('<div>').addClass('form-group').append($('<div>').addClass('col-sm-10 col-xs-6')).append($('<div>').addClass('col-sm-2 col-xs-6').append(cont))
+				);
+			});
+			
+			$('input[type=checkbox],input[type=radio]').each(function(){
+				if($(this).data('switch')){
+					$(this).bootstrapSwitch();
+				}
+			});
+			
+		});
+	}(jQuery));
+</script>
+<?php
+if ($this->redirect){
+	/* @var $form Zend\Form\Form */
+	$this->formular->add(array(
+		'name' => 'redirect',
+		'type' => 'Hidden',
+		'attributes' => array(
+			'value' => $this->redirect,
+		),
+	));
+}
+echo $this->form($this->formular);

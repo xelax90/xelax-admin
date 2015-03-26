@@ -18,3 +18,63 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
+$paginatorCreater = function($rows, $page_length, $page){
+	if (is_array($rows)) {
+		$paginator = new Zend\Paginator\Paginator(new Zend\Paginator\Adapter\ArrayAdapter($rows));
+	} elseif($rows instanceof Traversable && !($rows instanceof Zend\Paginator\Paginator)) {
+		$paginator = new Zend\Paginator\Paginator(new Zend\Paginator\Adapter\Iterator($rows));
+	} else {
+		$paginator = $rows;
+	}
+
+	$paginator->setItemCountPerPage($page_length);
+	$paginator->setCurrentPageNumber($page);
+	return $paginator;
+};
+
+?>
+
+<h1><?php echo $this->translate($this->title) ?></h1>
+
+<div class="navbar filter-bar">
+    <div class="navbar-inner">
+        <div class="pull-right">
+			<?php $createRoute = call_user_func($this->route_builder, "create"); ?>
+			<?php if(!empty($createRoute)) : ?>
+	            <a href="<?php echo $createRoute ?>" class="btn btn-primary">
+	                <?php echo $this->translate($this->create_text) ?>
+	            </a>
+			<?php endif; ?>
+        </div>
+    </div>
+</div>
+
+<?php
+
+$paginator = $paginatorCreater($this->rows, $this->page_length, $this->page);
+
+$getters = array();
+foreach ($this->columns as $element) {
+	$getters[$element] = call_user_func($this->getter_creator, $element);
+}
+
+$idGetter = call_user_func($this->getter_creator, $this->id_name);
+$aliasGetter = call_user_func($this->getter_creator, $this->alias_name);
+
+$columns = array();
+foreach($this->columns as $name => $element){
+	$columns[] = (object)array(
+		'displayText' => $name,
+		'key' => $element,
+		'getter' => $getters[$element]
+	);
+}
+
+echo $this->partial('partial/admin_list_table.phtml', array(
+	'paginator' => $paginator,
+	'columns' => $columns,
+	'route_builder' => $this->route_builder,
+	'id_getter' => $idGetter,
+	'alias_getter' => $aliasGetter,
+	'delete_warning_text' => $this->delete_warning_text,
+));

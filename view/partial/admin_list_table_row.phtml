@@ -1,7 +1,7 @@
 <?php
 
 /* 
- * Copyright (C) 2014 schurix
+ * Copyright (C) 2015 schurix
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -18,14 +18,21 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-$routeParams = array();
-
-$form = $this->form;
-$form->prepare();
-$form->setAttribute('action', call_user_func($this->route_builder, 'create'));
-$form->setAttribute('method', 'post');
 ?>
+		<tr>
+            <?php foreach ($this->values as $key => $value): ?>
+                <td class="cell cell-<?php echo $this->escapeHtml($key) ?>"><?php echo $value; ?></td>
+            <?php endforeach; ?>
+            <td class="cell cell-ctrls">
+				<?php $c = 0;?>
+				<?php foreach($buttons as $button): ?>
+					<?php echo $c == 0 ? '' : '|'  ?>
+					<a href="<?php echo $button['url'] ?>" <?= empty($button['warning']) ? '' : 'onclick=" return confirm(\''.$button['warning'].'\')"' ?> >
+						<?php echo $this->translate($button['title']) ?>
+					</a>
+					<?php $c++; ?>
+				<?php endforeach; ?>
+            </td>
+        </tr>
 
-<h1><?php echo $this->translate($this->title) ?></h1>
-
-<?php echo $this->partial('partial/admin_form.phtml', array('formular' => $form));
+		

@@ -346,7 +346,7 @@ class ListControllerOptions extends AbstractOptions
 		}
 		
 		if(empty($this->aliasParamName)){
-			$this->aliasParamName = 'alias';
+			$this->aliasParamName = strtolower($this->name).'_alias';
 		}
 		
 		if(empty($this->idParamName)){

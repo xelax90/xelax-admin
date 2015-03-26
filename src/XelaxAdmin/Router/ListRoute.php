@@ -145,7 +145,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 			case "edit":
 			case "delete":
 				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 2)));
-				$idAlias = $this->match_alias($parts[$curr+1]);
+				$idAlias = $this->match_alias($parts[$curr+2]);
 				return array(
 					'params' => $this->getRouteParams($controllerOptions, $action, $idAlias['id'], $idAlias['alias'], $privilegeBase."/".$action),
 					'length' => $matchLength,

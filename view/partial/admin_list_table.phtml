@@ -1,0 +1,80 @@
+<?php
+
+/* 
+ * Copyright (C) 2015 schurix
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ */
+?>
+
+<table class="table">
+    <thead>
+        <tr>
+            <?php foreach ($this->columns as $element): ?>
+                <th><?php echo $this->escapeHtml($element->displayText ? : $element->key); ?></th>
+            <?php endforeach; ?>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php 
+		foreach ($this->paginator as $row){
+            $values = array();
+			
+			foreach ($this->columns as $element){
+				$value = call_user_func(array($row, $element->getter));
+				if($value instanceof DateTime){
+					$value = $value->format('Y-m-d H:i');
+				}
+				if(is_bool($value)){
+					$value = $value ? $this->translate('Yes') : $this->translate('No');
+				}
+				$values[$element->key] = $value;
+			}
+			
+			$buttons = array();
+			$editRoute = call_user_func($this->route_builder, 'edit', call_user_func(array($row, $this->id_getter)), call_user_func(array($row, $this->alias_getter)));
+			if(!empty($editRoute)){
+				$buttons[] = array(
+					'title' => 'Edit',
+					'url' => $editRoute,
+				);
+			}
+
+			$deleteRoute = call_user_func($this->route_builder, 'delete', call_user_func(array($row, $this->id_getter)), call_user_func(array($row, $this->alias_getter)));
+			if(!empty($deleteRoute)){
+				$buttons[] = array(
+					'title' => 'Delete',
+					'url' => $deleteRoute,
+					'warning' => $this->delete_warning_text
+				);
+			}
+			
+			// TODO row buttons
+			echo $this->partial('partial/admin_list_table_row.phtml', array('values' => $values, 'buttons' => $buttons));
+		} 
+		
+	?>
+    </tbody>
+	<?php if($this->paginator instanceof Zend\Paginator\Paginator): ?>
+		<tfoot>
+		<tr>
+			<td colspan="<?php echo count($this->columns) + 1; ?>">
+				<?php echo $this->paginationControl($this->paginator, 'Sliding', 'partial/admin_list_pagination.phtml', array('route_builder' => $this->route_builder)); ?>
+			</td>
+		</tr>
+		</tfoot>
+	<?php endif; ?>
+</table>

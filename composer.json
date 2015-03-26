@@ -28,7 +28,9 @@
 		"doctrine/doctrine-module" : "dev-master",
 		"doctrine/doctrine-orm-module": "dev-master",
         "zendframework/zend-developer-tools": "0.*",
-        "zf-commons/zfc-user":                "0.*"
+        "zf-commons/zfc-user":                "0.*",
+		"neilime/zf2-twb-bundle": "dev-master",
+		"xelax90/xelax-twb-unmask" : "dev-master"
     },
     "suggests": {
         "zendframework/zend-developer-tools": "Fancy thing"
