@@ -39,5 +39,11 @@
         "psr-0": {
             "XelaxAdmin\\": "src/"
         }
-    }
+    },
+   "repositories": [
+        {
+            "url": "https://github.com/xelax90/xelax-twb-unmask.git",
+            "type": "git"
+        }
+    ]
 }
