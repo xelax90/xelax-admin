@@ -21,7 +21,6 @@
     "require": {
         "php": ">=5.4",
 		"zendframework/zendframework": "2.3.*",
-		"neilime/zf2-twb-bundle": "dev-master",
 		"xelax90/xelax-twb-unmask" : "dev-master"
     },
     "require-dev": {
