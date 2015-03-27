@@ -20,8 +20,7 @@
     "minimum-stability": "dev",
     "require": {
         "php": ">=5.4",
-		"zendframework/zendframework": "2.3.*",
-		"xelax90/xelax-twb-unmask" : "dev-master"
+		"zendframework/zendframework": "2.3.*"
     },
     "require-dev": {
         "phpunit/phpunit":                    "~3.7",
@@ -38,19 +37,5 @@
         "psr-0": {
             "XelaxAdmin\\": "src/"
         }
-    },
-   "repositories": [
-		{
-            "type": "package",
-            "package": {
-                "name": "xelax90/xelax-twb-unmask",
-                "version": "master",
-                "source": {
-                    "url": "https://github.com/xelax90/xelax-twb-unmask.git",
-                    "type": "git",
-                    "reference": "master"
-                }
-            }
-        }
-    ]
+    }
 }
