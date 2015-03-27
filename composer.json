@@ -41,9 +41,17 @@
         }
     },
    "repositories": [
-        {
-            "url": "https://github.com/xelax90/xelax-twb-unmask.git",
-            "type": "git"
+		{
+            "type": "package",
+            "package": {
+                "name": "xelax90/xelax-twb-unmask",
+                "version": "master",
+                "source": {
+                    "url": "https://github.com/xelax90/xelax-twb-unmask.git",
+                    "type": "git",
+                    "reference": "master"
+                }
+            }
         }
     ]
 }
