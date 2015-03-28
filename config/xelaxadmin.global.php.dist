@@ -29,7 +29,7 @@ $xelaxConfig = array(
 			// You can subclass the ListController for better control
 			'controller_class' => 'XelaxAdmin\Controller\ListController', 
 			// Base namespace of Menu entity and form
-			'base_namespace' => 'XelaxTest', 
+			'base_namespace' => 'MyModule', 
 			// columns to show in list view
 			'list_columns' => array('Id' => 'id', 'Title' => 'title'),
 			// route_base defaults to the config key ('menus' in this case). 
@@ -47,7 +47,7 @@ $xelaxConfig = array(
 				'item' => array(
 					'name' => 'Item',
 					'controller_class' => 'XelaxAdmin\Controller\ListController',
-					'base_namespace' => 'XelaxTest', 
+					'base_namespace' => 'MyModule', 
 					'list_columns' => array('Id' => 'id', 'Title' => 'title'),
 					'list_title' => 'Menu Items', // heading of list view
 					'create_route' => array(
