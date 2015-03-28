@@ -38,6 +38,15 @@ $paginatorCreater = function($rows, $page_length, $page){
 
 <div class="navbar filter-bar">
     <div class="navbar-inner">
+		<div class="pull-left">
+			<?php if(!empty($this->parent_route_title)) : ?>
+				<?php $parentRoute = call_user_func($this->parent_route_builder); ?>
+	            <a href="<?php echo $parentRoute ?>" class="btn btn-primary">
+					<i class="glyphicon glyphicon-chevron-left"></i> <?php echo $this->translate($this->parent_route_title) ?>
+	            </a>
+			<?php endif; ?>
+		</div>
+		
         <div class="pull-right">
 			<?php $createRoute = call_user_func($this->route_builder, "create"); ?>
 			<?php if(!empty($createRoute)) : ?>
@@ -77,4 +86,6 @@ echo $this->partial('partial/admin_list_table.phtml', array(
 	'id_getter' => $idGetter,
 	'alias_getter' => $aliasGetter,
 	'delete_warning_text' => $this->delete_warning_text,
+	'child_routes' => empty($this->child_routes) ? array() : $this->child_routes,
+	'child_route_builder' => $this->child_route_builder,
 ));

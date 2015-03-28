@@ -140,7 +140,6 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 				$action = 'subroute';
 			}
 		}
-		
 		switch($action){
 			case "edit":
 			case "delete":
@@ -163,7 +162,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 					}
 				}
 				if($sublistParams !== null){
-					$params = array_merge($sublistParams['params'], $params);
+					$params = array_merge($params, $sublistParams['params']);
 					$matchLength += $sublistParams['length'];
 				}
 				
@@ -273,7 +272,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 		if(!empty($parts[1])){
 			// try to match child controller
 			foreach($controllerOptions->getChildOptions() as $key => $child){
-				$childRes = $this->buildRoute(array_merge(array("route" => implode("/".array_slice($parts, 1))), $params), $options, $key, $child);
+				$childRes = $this->buildRoute(array_merge($params, array("route" => implode("/",array_slice($parts, 1)))), $options, $key, $child);
 				if(!empty($childRes)){
 					// match found
 					return "/".implode("/", $res).$childRes;

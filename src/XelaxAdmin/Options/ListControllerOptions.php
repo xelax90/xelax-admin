@@ -30,6 +30,10 @@ class ListControllerOptions extends AbstractOptions
 	 * @var ListControllerOptions 
 	 */
 	protected $parentOptions = null;
+	/**
+	 * @var string The name of the entity attribute that contains the parent
+	 */
+	protected $parentAttributeName = '';
 
 	/** 
 	 * Options of child controller
@@ -44,6 +48,10 @@ class ListControllerOptions extends AbstractOptions
 	protected $controllerClass;
 	/** @var string Module namespace for generating Entity and Form class */
 	protected $baseNamespace;
+	/** @var string Entity class. Defaults to _BaseNamespace_\Entity\_Name_ */
+	protected $entityClass;
+	/** @var string Form class. Defaults to _BaseNamespace_\Form\_Name_Form */
+	protected $formClass;
 	
 	
 	/** @var string List view heading */
@@ -168,6 +176,10 @@ class ListControllerOptions extends AbstractOptions
 	public function getParentOptions() {
 		return $this->parentOptions;
 	}
+	
+	public function getParentAttributeName(){
+		return $this->parentAttributeName;
+	}
 
 	public function getChildOptions() {
 		return $this->childOptions;
@@ -278,6 +290,11 @@ class ListControllerOptions extends AbstractOptions
 		$this->parentOptions = $parentOptions;
 		return $this;
 	}
+	
+	public function setParentAttributeName($parentAttributeName) {
+		$this->parentAttributeName = $parentAttributeName;
+		return $this;
+	}
 
 	public function setChildOptions($childOptions) {
 		$this->childOptions = $childOptions;
@@ -297,7 +314,26 @@ class ListControllerOptions extends AbstractOptions
 		$this->baseNamespace = $baseNamespace;
 		return $this;
 	}
+	
+	public function getEntityClass() {
+		return $this->entityClass;
+	}
 
+	public function getFormClass() {
+		return $this->formClass;
+	}
+
+	public function setEntityClass($entityClass) {
+		$this->entityClass = $entityClass;
+		return $this;
+	}
+
+	public function setFormClass($formClass) {
+		$this->formClass = $formClass;
+		return $this;
+	}
+
+	
 	public function __construct($options = null) {
 		if(!empty($options['parent_options'])){ // this should not be used I guess..
 			$parentOptions = new static($options['parent_options']);
@@ -313,6 +349,9 @@ class ListControllerOptions extends AbstractOptions
 				}
 				$child = new static($option);
 				$child->setParentOptions($this);
+				if(empty($child->getParentAttributeName())){
+					$child->setParentAttributeName(strtolower($options['name']));
+				}
 				$childOptions[$key] = $child;
 			}
 			$options['child_options'] = $childOptions;
@@ -375,6 +414,14 @@ class ListControllerOptions extends AbstractOptions
 		
 		if(empty($this->deleteRoute)){
 			$this->setDeleteRoute(array());
+		}
+		
+		if(empty($this->entityClass) && !empty($this->baseNamespace)){
+			$this->entityClass = $this->baseNamespace."\\Entity\\".$this->name;
+		}
+		
+		if(empty($this->formClass) && !empty($this->baseNamespace)){
+			$this->formClass = $this->baseNamespace."\\Form\\".$this->name."Form";
 		}
 	}
 }

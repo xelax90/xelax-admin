@@ -20,9 +20,8 @@
 
 $xelaxConfig = array(
 	/*
-	 * Configure your list controllers. Routes are generated automatically, but
-	 * you can also create your own routes. Route names must correspond with 
-	 * controller names.
+	 * Configure your list controllers. Routes are generated automatically, and
+	 * access permissions can be configured.
 	 */
 	'list_controller' => array(
 		'menus' => array(
@@ -31,6 +30,8 @@ $xelaxConfig = array(
 			'controller_class' => 'XelaxAdmin\Controller\ListController', 
 			// Base namespace of Menu entity and form
 			'base_namespace' => 'XelaxTest', 
+			// columns to show in list view
+			'list_columns' => array('Id' => 'id', 'Title' => 'title'),
 			// route_base defaults to the config key ('menus' in this case). 
 			'route_base' => 'menus_foo', // only available at top-level options
 			'create_route' => array(
@@ -47,7 +48,8 @@ $xelaxConfig = array(
 					'name' => 'Item',
 					'controller_class' => 'XelaxAdmin\Controller\ListController',
 					'base_namespace' => 'XelaxTest', 
-					'list_title' => 'Menu Items', 
+					'list_columns' => array('Id' => 'id', 'Title' => 'title'),
+					'list_title' => 'Menu Items', // heading of list view
 					'create_route' => array(
 						'allowed_roles' => array('moderator'),
 					),

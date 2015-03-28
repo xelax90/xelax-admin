@@ -45,7 +45,12 @@
 			}
 			
 			$buttons = array();
-			$editRoute = call_user_func($this->route_builder, 'edit', call_user_func(array($row, $this->id_getter)), call_user_func(array($row, $this->alias_getter)));
+			$itemId = call_user_func(array($row, $this->id_getter));
+			$itemAlias = '';
+			if(method_exists($row, $this->alias_getter)){
+				$itemAlias = call_user_func(array($row, $this->alias_getter));
+			}
+			$editRoute = call_user_func($this->route_builder, 'edit', $itemId, $itemAlias);
 			if(!empty($editRoute)){
 				$buttons[] = array(
 					'title' => 'Edit',
@@ -53,13 +58,22 @@
 				);
 			}
 
-			$deleteRoute = call_user_func($this->route_builder, 'delete', call_user_func(array($row, $this->id_getter)), call_user_func(array($row, $this->alias_getter)));
+			$deleteRoute = call_user_func($this->route_builder, 'delete', $itemId, $itemAlias);
 			if(!empty($deleteRoute)){
 				$buttons[] = array(
 					'title' => 'Delete',
 					'url' => $deleteRoute,
 					'warning' => $this->delete_warning_text
 				);
+			}
+			
+			if(!empty($this->child_routes)){
+				foreach($this->child_routes as $key => $title){
+					$buttons[] = array(
+						'title' => $title,
+						'url' => call_user_func($this->child_route_builder, $key, $itemId, $itemAlias)
+					);
+				}
 			}
 			
 			// TODO row buttons

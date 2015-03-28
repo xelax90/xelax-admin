@@ -59,18 +59,13 @@ class ListController extends AbstractActionController{
 	 * @return string
 	 * @throws \Exception
 	 */
-	public function getName(){
-		$name = $this->getOptions()->getName();
-		if(empty($name)){
-			$parts = explode("\\", get_class($this));
-			$name = array_pop($parts);
-			
-			$name = preg_replace('/ListController$/', '', $name);
-			$name = preg_replace('/Controller$/', '', $name);
-			
-			if (empty($name)) {
-				throw new \Exception('Empty name');
-			}
+	public function getName($option = null){
+		if(empty($option)){
+			$option = $this->getOptions();
+		}
+		$name = $option->getName();
+		if (empty($name)) {
+			throw new \Exception('Empty name');
 		}
 		return $name;
 	}
@@ -147,8 +142,10 @@ class ListController extends AbstractActionController{
 	 * @return string
 	 * @throws \Exception
 	 */
-	private function getBaseNamespace(){
-		$options = $this->getOptions();
+	private function getBaseNamespace($options = null){
+		if(empty($options)){
+			$options = $this->getOptions();
+		}
 		if(empty($options->getBaseNamespace())){
 			$parts = explode("\\", get_class($this));
 			if(count($parts) <= 1){
@@ -175,27 +172,52 @@ class ListController extends AbstractActionController{
 		return $this->getBaseNamespace()."\\Form";
 	}
 	
+	private function getEntityClass($option = null){
+		if(empty($option)){
+			$option = $this->getOptions();
+		}
+		if(!empty($option->getEntityClass())){
+			return $option->getEntityClass();
+		}
+		return $this->getEntityNamespace()."\\".$this->getName($option);
+	}
+	
+	private function getFormClass($option = null){
+		if(empty($option)){
+			$option = $this->getOptions();
+		}
+		if(!empty($option->getFormClass())){
+			return $option->getFormClass();
+		}
+		return $this->getFormNamespace()."\\".$this->getName($option);
+	}
+	
 	/**
 	 * Returns list of all items to show in list view. Overwrite to add custom filters
 	 * @return \Traversable
 	 */
 	protected function getAll(){
 		$em = $this->getEntityManager();
-		$namespace = $this->getEntityNamespace();
-		$name = $this->getName();
-		$items = $em->getRepository($namespace."\\".$name)->findAll();
+		$entityClass = $this->getEntityClass();
+		
+		if(empty($this->getParentControllerOptions())){
+			$items = $em->getRepository($entityClass)->findAll();
+		} else {
+			$parentId = $this->getEvent()->getRouteMatch()->getParam($this->getParentControllerOptions()->getIdParamName());
+			$items = $em->getRepository($entityClass)->findBy(array($this->getOptions()->getParentAttributeName() => $parentId));
+		}
+		
 		return $items;
 	}
 	
 	/**
 	 * @param int|null $id
+	 * @param ListControllerOptions|null $option Options to generate the entity class
 	 * @return Object
 	 */
-	protected function getItem($id = null){
+	protected function getItem($id = null, $option = null){
 		$em = $this->getEntityManager();
-		$namespace = $this->getEntityNamespace();
-		$name = $this->getName();
-		$fullName = $namespace . "\\" . $name;
+		$fullName = $this->getEntityClass($option);
 		if ($id) {
 			$item = $em->getRepository($fullName)->find((int) $id);
 		} else {
@@ -210,14 +232,16 @@ class ListController extends AbstractActionController{
 	 * @param string $name
 	 * @return \Zend\Form\Form
 	 */
-	protected function getForm($name = null){
+	protected function getForm($name = null, $option = null){
 		if (!$name) {
 			$name = $this->getName();
 		}
 		$em = $this->getEntityManager();
-		$namespace = $this->getFormNamespace();
-		$frmCls = $namespace."\\".$name."Form";
+		$frmCls = $this->getFormClass($option);
 		$form = new $frmCls($em);
+		if($form instanceof \DoctrineModule\Persistence\ObjectManagerAwareInterface){
+			$form->setObjectManager($em);
+		}
         $form->setHydrator(new DoctrineObject($em));
 		return $form;
 	}
@@ -312,7 +336,6 @@ class ListController extends AbstractActionController{
 		}
 		
 		$params['route'] = $this->getPrivilegeBase()."/".$child."/".$action;
-		
 		if($checkACL && !$this->isAllowed($params['route'])){
 			return false;
 		}
@@ -349,19 +372,33 @@ class ListController extends AbstractActionController{
 		if(empty($param)){
 			return "";
 		}
+		return 'get' . $this->ucFirst($param);
+	}
+	
+	public function createSetter($param){
+		if(empty($param)){
+			return "";
+		}
+		return 'set' . $this->ucFirst($param);
+	}
+	
+	protected function ucFirst($param){
 		$parts = explode('_', $param);
 		array_walk($parts, function (&$val) {
 			$val = ucfirst($val);
 		});
-		return 'get' . implode('', $parts);
+		return implode('', $parts);
 	}
 	
 	public function listAction(){
 		$items = $this->getAll();
+		
 		$params = array(
 			'title' => $this->getOptions()->getListTitle(),
 			'route_builder' => array($this, 'buildRoute'),
 			'getter_creator' => array($this, 'createGetter'),
+			'child_route_builder' => array($this, 'buildChildRoute'),
+			'parent_route_builder' => array($this, 'buildParentRoute'),
 			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
 			'create_text' => $this->getOptions()->getCreateText(),
 			'columns' => $this->getOptions()->getListColumns(),
@@ -371,13 +408,17 @@ class ListController extends AbstractActionController{
 			'id_name' => $this->getOptions()->getIdName(),
 		);
 		
-		if(!empty($this->getChildControllerOptions())){
-			$params['sublist_names'] = array_keys($this->getChildControllerOptions());
-			$params['sublist_route_builder'] = array($this, 'buildChildRoute');
+		$childOptions = $this->getChildControllerOptions();
+		if(!empty($childOptions)){
+			$childRoutes = array();
+			foreach($childOptions as $key => $option){
+				$childRoutes[$key] = $option->getName();
+			}
+			$params['child_routes'] = $childRoutes;
 		}
 		
 		if(!empty($this->getParentControllerOptions())){
-			$params['parent_route_builder'] = array($this, 'buildParentRoute');
+			$params['parent_route_title'] = $this->getParentControllerOptions()->getName();
 		}
 		
 		return $this->_showList($params);
@@ -437,6 +478,14 @@ class ListController extends AbstractActionController{
         $form->bind($item);
         $form->setData($request->getPost());
         if ($form->isValid()) {
+			if(!empty($this->getParentControllerOptions())){
+				$parentId = $this->getEvent()->getRouteMatch()->getParam($this->getParentControllerOptions()->getIdParamName());
+				$setter = $this->createSetter($this->getOptions()->getParentAttributeName());
+				if(method_exists($item, $setter)){
+					$parent = $this->getItem($parentId, $this->getParentControllerOptions());
+					call_user_func(array($item, $setter), $parent);
+				}
+			}
 			$this->_preCreate($item);
 			$em->persist($item);
 			$em->flush();
@@ -462,13 +511,19 @@ class ListController extends AbstractActionController{
             $this->flashMessenger()->addSuccessMessage('The '.$this->getName().' was edited');
             return $this->_redirectToList();
 		}
+		
+		$itemId = call_user_func(array($item, $this->createGetter($this->getOptions()->getIdName())));
+		$itemAlias = '';
+		if(method_exists($item, $this->createGetter($this->getOptions()->getAliasName()))){
+			$itemAlias = call_user_func(array($item, $this->createGetter($this->getOptions()->getAliasName())));
+		}
 		$params = array(
 			'title' => $this->getOptions()->getEditTitle(),
 			'route_builder' => array($this, 'buildRoute'),
 			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
             'form' => $form,
-            'id' => call_user_func(array($item, $this->createGetter($this->getOptions()->getIdName()))),
-            'alias' => call_user_func(array($item, $this->createGetter($this->getOptions()->getAliasName()))),
+            'id' => $itemId,
+            'alias' => $itemAlias,
 		);
 		return $this->_showEditForm($params);
     }
