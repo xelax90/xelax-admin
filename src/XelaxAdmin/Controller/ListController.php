@@ -238,7 +238,8 @@ class ListController extends AbstractActionController{
 		}
 		$em = $this->getEntityManager();
 		$frmCls = $this->getFormClass($option);
-		$form = new $frmCls($em);
+		$form = $this->getServiceLocator()->get('FormElementManager')->get($frmCls);
+		//$form = new $frmCls($em);
 		if($form instanceof \DoctrineModule\Persistence\ObjectManagerAwareInterface){
 			$form->setObjectManager($em);
 		}
