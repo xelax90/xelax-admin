@@ -146,14 +146,14 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 		switch($action){
 			case "edit":
 			case "delete":
-				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 2)));
+				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 3)));
 				$idAlias = $this->match_alias($parts[$curr+2]);
 				return array(
 					'params' => $this->getRouteParams($controllerOptions, $action, $idAlias['id'], $idAlias['alias'], $privilegeBase."/".$action),
 					'length' => $matchLength,
 				);
 			case "rest":
-				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr+1)));
+				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr+2)));
 				$idAlias = false;
 				if(!empty($parts[$curr+2])){
 					$idAlias = $this->match_alias($parts[$curr+2]);
@@ -174,7 +174,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 				}
 				$params = $this->getRouteParams($controllerOptions, '', 0, '', $privilegeBase."/".$privilege);
 				if($idAlias){
-					$matchLength = strlen(implode("/", array_slice($parts, 0, $curr+2)));
+					$matchLength = strlen(implode("/", array_slice($parts, 0, $curr+3)));
 					$params = $this->getRouteParams($controllerOptions, '', $idAlias['id'], $idAlias['alias'], $privilegeBase."/".$privilege);
 				}
 				return array(
@@ -217,7 +217,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 				);
 			default :
 				// list, create and other actions
-				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 1)));
+				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 2)));
 				return array(
 					'params' => $this->getRouteParams($controllerOptions, $action, 0, '', $privilegeBase."/".$action),
 					'length' => $matchLength,
