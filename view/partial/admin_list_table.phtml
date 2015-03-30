@@ -41,9 +41,12 @@
 				if(is_bool($value)){
 					$value = $value ? $this->translate('Yes') : $this->translate('No');
 				}
+				
+				if(file_exists($this->basePath($value)) && exif_imagetype($this->basePath($value)) !== false){
+					$value = sprintf('<img src="%s" height="80">', $this->basePath($value));
+				}
 				$values[$element->key] = $value;
 			}
-			
 			$buttons = array();
 			$itemId = call_user_func(array($row, $this->id_getter));
 			$itemAlias = '';
