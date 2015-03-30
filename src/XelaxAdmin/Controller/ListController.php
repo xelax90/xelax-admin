@@ -639,11 +639,18 @@ class ListController extends AbstractRestfulController{
 		if(!$this->getOptions()->getRestEnabled()){
 			return parent::create($data);
 		}
+		$request = $this->getRequest();
+		$formData = array_merge_recursive($data, $request->getFiles()->toArray());
+		
+		$routeMatch = $this->getEvent()->getRouteMatch();
+		$id   = $this->getIdentifier($routeMatch, $request);
+		if(!empty($id)){
+			return $this->update($id, $formData);
+		}
+		
 		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
 		$item = $this->getItem();
 		$form = $this->getCreateForm();
-		$request = $this->getRequest();
-		$formData = array_merge_recursive($data, $request->getFiles()->toArray());
 		$result = array('success' => false);
 		if($this->_createItem($item, $form, $formData)){
 			$result['success'] = true;
