@@ -194,6 +194,9 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 					}
 				}
 				if($sublistParams !== null){
+					if(!isset($sublistParams['action'])){
+						unset($params['action']);
+					}
 					$params = array_merge($params, $sublistParams['params']);
 					$matchLength += $sublistParams['length'];
 				}
