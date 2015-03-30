@@ -53,6 +53,8 @@ class ListControllerOptions extends AbstractOptions
 	/** @var string Form class. Defaults to _BaseNamespace_\Form\_Name_Form */
 	protected $formClass;
 	
+	/** @var boolean Set to true if you want REST functionality. Only POST Requests support file uploading so far! */
+	protected $restEnabled = false;
 	
 	/** @var string List view heading */
 	protected $listTitle;
@@ -332,8 +334,17 @@ class ListControllerOptions extends AbstractOptions
 		$this->formClass = $formClass;
 		return $this;
 	}
-
 	
+	public function getRestEnabled() {
+		return $this->restEnabled;
+	}
+
+	public function setRestEnabled($restEnabled) {
+		$this->restEnabled = $restEnabled;
+		return $this;
+	}
+
+		
 	public function __construct($options = null) {
 		if(!empty($options['parent_options'])){ // this should not be used I guess..
 			$parentOptions = new static($options['parent_options']);

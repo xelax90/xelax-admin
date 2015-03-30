@@ -20,13 +20,15 @@
 
 namespace XelaxAdmin\Controller;
 
-use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Mvc\Controller\AbstractRestfulController;
 use Zend\View\Model\ViewModel;
 use XelaxAdmin\Options\ListControllerOptions;
 use Doctrine\ORM\EntityManager;
-use DoctrineModule\Stdlib\Hydrator\DoctrineObject;
+use Zend\View\Model\JsonModel;
+use Zend\Json\Json;
+use JsonSerializable;
 
-class ListController extends AbstractActionController{
+class ListController extends AbstractRestfulController{
 	
 	/** @var \Doctrine\ORM\EntityManager */
 	protected $em;
@@ -553,7 +555,7 @@ class ListController extends AbstractActionController{
 		
         /** @var $request \Zend\Http\Request */
         $request = $this->getRequest();
-		if ($request->isPost()) {
+		if ($request->isPost() || ($request->isPut() && $data !== null)) {
 			if($data === null){
 				$data = array_merge_recursive(
 					$request->getPost()->toArray(),
@@ -623,5 +625,93 @@ class ListController extends AbstractActionController{
 			}
 		}
 		return false;
+	}
+	
+	//--------------------------------
+	// REST Functionality
+	//--------------------------------
+	
+	public function getIdentifierName() {
+		return $this->getOptions()->getIdParamName();
+	}
+	
+	public function create($data) {
+		if(!$this->getOptions()->getRestEnabled()){
+			return parent::create($data);
+		}
+		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
+		$item = $this->getItem();
+		$form = $this->getCreateForm();
+		$request = $this->getRequest();
+		$formData = array_merge_recursive($data, $request->getFiles()->toArray());
+		$result = array('success' => false);
+		if($this->_createItem($item, $form, $formData)){
+			$result['success'] = true;
+			$result['item'] = $this->itemToSerializable($item);
+		}
+		return new JsonModel($result);
+	}
+	
+	public function update($id, $data) {
+		if(!$this->getOptions()->getRestEnabled()){
+			parent::update($id, $data);
+		}
+		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
+        $item = $this->getItem($id);
+        $form = $this->getEditForm();
+		
+		$result = array('success' => false);
+		if($this->_editItem($item, $form, $data)){
+			$result['success'] = true;
+			$result['item'] = $this->itemToSerializable($item);
+		}
+		return new JsonModel($result);
+	}
+	
+	public function delete($id) {
+		if(!$this->getOptions()->getRestEnabled()){
+			parent::delete($id);
+		}
+		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
+		$item = $this->getItem($id);
+		$result = array('success' => false);
+		if($this->_delteItem($item)){
+			$result['success'] = true;
+		} elseif($item){
+			$result['error'] = 'The '.$this->getName().' was not deleted';
+		} else {
+			$result['error'] = 'The '.$this->getName().' was not found';
+		}
+		return new JsonModel($result);
+	}
+	
+	public function getList() {
+		if(!$this->getOptions()->getRestEnabled()){
+			parent::getList();
+		}
+		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
+		$result = array();
+		$items = $this->getAll();
+		foreach($items as $item){
+			$result[] = $this->itemToSerializable($item);
+		}
+		return new JsonModel($result);
+	}
+	
+	public function itemToSerializable($item){
+		if($item instanceof JsonSerializable){
+			return $item;
+		}
+		$columns = $this->getOptions()->getListColumns();
+		$result = array();
+		foreach($columns as $param){
+			$result[$param] = call_user_func(array($item, $this->createGetter($param)));
+		}
+		return (object)$result;
+	}
+	
+	public function itemToJson($item){
+		$serializable = $this->itemToSerializable($item);
+		return Json::encode($serializable);
 	}
 }

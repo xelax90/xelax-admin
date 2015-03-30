@@ -56,10 +56,13 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 	protected $defaults = array();
 	
 	// all list actions
-	protected $listActions = array('index','list', 'create', 'edit', 'delete');
+	protected $listActions = array('index','list', 'create', 'edit', 'delete', 'rest');
 	
 	// list actions which require the id to be set
 	protected $listActionsWithId = array('edit', 'delete');
+	
+	// list actions with Optional id
+	protected $listActionsWithOptinalId = array('rest');
 	
 	/**
 	 * Create a new XelaxAdmin route
@@ -149,6 +152,35 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 					'params' => $this->getRouteParams($controllerOptions, $action, $idAlias['id'], $idAlias['alias'], $privilegeBase."/".$action),
 					'length' => $matchLength,
 				);
+			case "rest":
+				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr+1)));
+				$idAlias = false;
+				if(!empty($parts[$curr+2])){
+					$idAlias = $this->match_alias($parts[$curr+2]);
+				}
+				
+				$method = strtolower($request->getMethod());
+				$privilege = 'index';
+				switch($method){
+					case 'get' : $privilege = 'list'; break;
+					case 'post' : 
+						$privilege = 'create'; 
+						if($idAlias){
+							$privilege = 'edit';
+						}
+						break;
+					case 'put' : $privilege = 'edit'; break;
+					case 'delete' : $privilege = 'delete'; break;
+				}
+				$params = $this->getRouteParams($controllerOptions, '', 0, '', $privilegeBase."/".$privilege);
+				if($idAlias){
+					$matchLength = strlen(implode("/", array_slice($parts, 0, $curr+2)));
+					$params = $this->getRouteParams($controllerOptions, '', $idAlias['id'], $idAlias['alias'], $privilegeBase."/".$privilege);
+				}
+				return array(
+					'params' => $params,
+					'length' => $matchLength,
+				);
 			case "sublist":
 				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 2)));
 				$idAlias = $this->match_alias($parts[$curr+1]);
@@ -192,13 +224,18 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 	}
 	
 	protected function getRouteParams(ListControllerOptions $options, $action = 'index', $id = 0, $alias = '', $privilege = ''){
-		return array(
+		$res = array(
 			'controller' => $options->getControllerClass(),
-			'action' => $action,
-			$options->getIdParamName() => $id,
 			$options->getAliasParamName() => $alias,
 			'xelax_admin_privilege' => $privilege,
 		);
+		if(!empty($id)){
+			$res[$options->getIdParamName()] = $id;
+		}
+		if(!empty($action)){
+			$res['action'] = $action;
+		}
+		return $res;
 	}
 	
 	protected function match_alias($part){
