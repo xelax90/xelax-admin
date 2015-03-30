@@ -470,7 +470,10 @@ class ListController extends AbstractActionController{
 		$em = $this->getEntityManager();
         $request = $this->getRequest();
 		if($data === null){
-			$data = $request->getPost();
+			$data = array_merge_recursive(
+				$request->getPost()->toArray(),
+				$request->getFiles()->toArray()
+			);
 		}
         $form->bind($item);
         $form->setData($data);
@@ -552,7 +555,10 @@ class ListController extends AbstractActionController{
         $request = $this->getRequest();
 		if ($request->isPost()) {
 			if($data === null){
-				$data = $request->getPost();
+				$data = array_merge_recursive(
+					$request->getPost()->toArray(),
+					$request->getFiles()->toArray()
+				);
 			}
 			$form->setData($data);
 			if ($form->isValid()) {
