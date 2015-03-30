@@ -1,5 +1,6 @@
 <?php
 namespace XelaxAdmin;
+use DoctrineModule\Persistence\ObjectManagerAwareInterface;
 
 /* 
  * Copyright (C) 2014 schurix
@@ -48,14 +49,25 @@ return array(
 		),
 		'invokables' => array(
 			'XelaxAdmin\ListControllerRouteInjecter' => 'XelaxAdmin\\Service\\ListControllerRouteInjecter',
-		)
+		),
 	),
 	'controllers' => array(
 		'invokables' => array(
 			'XelaxAdmin\Controller\ListController' => 'XelaxAdmin\Controller\ListController'
 		),
 	),
-
+	'form_elements' => array(
+		'initializers' => array(
+			'ObjectManagerInitializer' => function ($element, $formElements) {
+				if ($element instanceof ObjectManagerAwareInterface) {
+					$services      = $formElements->getServiceLocator();
+					$entityManager = $services->get('Doctrine\ORM\EntityManager');
+					$element->setObjectManager($entityManager);
+				}
+			},
+		),
+	),
+	
 	'bjyauthorize' => array(
 		'guards' => array(
 			'XelaxAdmin\Guard\ListController' => null,

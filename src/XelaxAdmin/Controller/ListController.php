@@ -236,14 +236,8 @@ class ListController extends AbstractActionController{
 		if (!$name) {
 			$name = $this->getName();
 		}
-		$em = $this->getEntityManager();
 		$frmCls = $this->getFormClass($option);
 		$form = $this->getServiceLocator()->get('FormElementManager')->get($frmCls);
-		//$form = new $frmCls($em);
-		if($form instanceof \DoctrineModule\Persistence\ObjectManagerAwareInterface){
-			$form->setObjectManager($em);
-		}
-        $form->setHydrator(new DoctrineObject($em));
 		return $form;
 	}
 	
