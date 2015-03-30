@@ -471,12 +471,14 @@ class ListController extends AbstractActionController{
 		return;
 	}
 	
-	protected function _createItem($item, $form){
+	protected function _createItem($item, $form, $data = null){
 		$em = $this->getEntityManager();
         $request = $this->getRequest();
-		
+		if($data === null){
+			$data = $request->getPost();
+		}
         $form->bind($item);
-        $form->setData($request->getPost());
+        $form->setData($data);
         if ($form->isValid()) {
 			if(!empty($this->getParentControllerOptions())){
 				$parentId = $this->getEvent()->getRouteMatch()->getParam($this->getParentControllerOptions()->getIdParamName());
@@ -546,7 +548,7 @@ class ListController extends AbstractActionController{
 		return;
 	}
 	
-	protected function _editItem($item, $form){
+	protected function _editItem($item, $form, $data = null){
 		$em = $this->getEntityManager();
 		$form->setBindOnValidate(false);
 		$form->bind($item);
@@ -554,7 +556,10 @@ class ListController extends AbstractActionController{
         /** @var $request \Zend\Http\Request */
         $request = $this->getRequest();
 		if ($request->isPost()) {
-			$form->setData($request->getPost());
+			if($data === null){
+				$data = $request->getPost();
+			}
+			$form->setData($data);
 			if ($form->isValid()) {
 				$form->bindValues();
 				$this->_preUpdate($item);
