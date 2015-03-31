@@ -30,6 +30,8 @@
     </thead>
     <tbody>
     <?php 
+		$finfo = new finfo(FILEINFO_MIME_TYPE);
+		$publicPath = rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/'. trim($this->basePath(), '/').'/';
 		foreach ($this->paginator as $row){
             $values = array();
 			
@@ -42,7 +44,7 @@
 					$value = $value ? $this->translate('Yes') : $this->translate('No');
 				}
 				
-				if(file_exists($this->basePath($value)) && exif_imagetype($this->basePath($value)) !== false){
+				if(file_exists($publicPath.ltrim($value, '/')) && strpos(strtolower($finfo->file($publicPath.ltrim($value, '/'))), 'image/') === 0){
 					$value = sprintf('<img src="%s" height="80">', $this->basePath($value));
 				}
 				$values[$element->key] = $value;
