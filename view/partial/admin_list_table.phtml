@@ -31,7 +31,7 @@
     <tbody>
     <?php 
 		$finfo = new finfo(FILEINFO_MIME_TYPE);
-		$publicPath = rtrim($_SERVER['DOCUMENT_ROOT'], '/').'/'. trim($this->basePath(), '/').'/';
+		$publicPath = realpath(rtrim(getcwd(), "/")."/public")."/";
 		foreach ($this->paginator as $row){
             $values = array();
 			
