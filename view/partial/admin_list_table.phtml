@@ -36,7 +36,11 @@
             $values = array();
 			
 			foreach ($this->columns as $element){
-				$value = call_user_func(array($row, $element->getter));
+				if(is_callable($element->getter)){
+					$value = call_user_func($element->getter, $row);
+				} else {
+					$value = call_user_func(array($row, $element->getter));
+				}
 				if($value instanceof DateTime){
 					$value = $value->format('Y-m-d H:i');
 				}
