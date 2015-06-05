@@ -361,7 +361,7 @@ class ListControllerOptions extends AbstractOptions
 				$child = new static($option);
 				$child->setParentOptions($this);
 				if(empty($child->getParentAttributeName())){
-					$child->setParentAttributeName(strtolower($options['name']));
+					$child->setParentAttributeName(lcfirst($options['name']));
 				}
 				$childOptions[$key] = $child;
 			}
