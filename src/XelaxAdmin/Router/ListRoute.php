@@ -299,7 +299,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 			if(in_array($parts[1], $this->listActionsWithId)){
 				// list action with required id
 				if(empty($params[$controllerOptions->getIdParamName()])){
-					throw new Exception\RuntimeException("List action '".$params[1]."' requires an id.");
+					throw new Exception\RuntimeException("List action '".$parts[1]."' requires an id.");
 				}
 				$res[] = $this->make_alias($controllerOptions, $params);
 			}
