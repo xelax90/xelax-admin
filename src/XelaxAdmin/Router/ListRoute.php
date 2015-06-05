@@ -88,6 +88,9 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
      */
 	public function match(RequestInterface $request, $pathOffset = null, array $options = array()) {
 		$match = $this->match_part($request, $pathOffset, $options);
+		if(!isset($match['params']['action'])){
+			$match['params']['action'] = '';
+		}
 		if(!empty($match)){
 			return new RouteMatch($match['params'], $match['length']);
 		}
