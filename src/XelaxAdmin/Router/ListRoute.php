@@ -88,6 +88,9 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
      */
 	public function match(RequestInterface $request, $pathOffset = null, array $options = array()) {
 		$match = $this->match_part($request, $pathOffset, $options);
+		if(!isset($match['params']['action'])){
+			$match['params']['action'] = '';
+		}
 		if(!empty($match)){
 			return new RouteMatch($match['params'], $match['length']);
 		}
@@ -296,7 +299,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 			if(in_array($parts[1], $this->listActionsWithId)){
 				// list action with required id
 				if(empty($params[$controllerOptions->getIdParamName()])){
-					throw new Exception\RuntimeException("List action '".$params[1]."' requires an id.");
+					throw new Exception\RuntimeException("List action '".$parts[1]."' requires an id.");
 				}
 				$res[] = $this->make_alias($controllerOptions, $params);
 			}
