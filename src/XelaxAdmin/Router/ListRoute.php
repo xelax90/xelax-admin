@@ -220,9 +220,13 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 				);
 			default :
 				// list, create and other actions
-				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 2)));
+				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 3)));
+				$params = $this->getRouteParams($controllerOptions, $action, 0, '', $privilegeBase."/".$action);
+				if($action === 'list' && !empty($parts[$curr+2]) && is_numeric($parts[$curr+2])){
+					$params['p'] = $parts[$curr+2];
+				}
 				return array(
-					'params' => $this->getRouteParams($controllerOptions, $action, 0, '', $privilegeBase."/".$action),
+					'params' => $params,
 					'length' => $matchLength,
 				);
 		}
@@ -302,7 +306,10 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 					throw new Exception\RuntimeException("List action '".$parts[1]."' requires an id.");
 				}
 				$res[] = $this->make_alias($controllerOptions, $params);
+			} elseif($parts[1] == 'list' && !empty($params['p'])){
+				$res[] = $params['p'];
 			}
+			
 			
 			// list actions have no children
 			return "/".implode("/", $res);
