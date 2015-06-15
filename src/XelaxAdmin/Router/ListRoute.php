@@ -89,7 +89,8 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 	public function match(RequestInterface $request, $pathOffset = null, array $options = array()) {
 		$match = $this->match_part($request, $pathOffset, $options);
 		if(!empty($match)){
-			if(!isset($match['params']['action'])){
+			$privilegeParts = explode('/', $match['params']['xelax_admin_privilege']);
+			if(!isset($match['params']['action']) && array_pop($privilegeParts) != 'subroute'){
 				$match['params']['action'] = '';
 			}
 			return new RouteMatch($match['params'], $match['length']);
@@ -215,7 +216,7 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 				}
 				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 1)));
 				return array(
-					'params' => $this->getRouteParams($controllerOptions),
+					'params' => $this->getRouteParams($controllerOptions, '', 0, '', $privilegeBase.'/'.$action),
 					'length' => $matchLength,
 				);
 			default :

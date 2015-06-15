@@ -56,7 +56,8 @@ class ListController implements GuardInterface, ServiceLocatorAwareInterface{
         $match      = $event->getRouteMatch();
         $routeName  = $match->getMatchedRouteName();
 		$privilege  = $match->getParam('xelax_admin_privilege');
-		if(empty($privilege) || $service->isAllowed('xelax-route/' . $routeName, $privilege)) {
+		$privilegeParts = explode('/', $privilege);
+		if(empty($privilege) || array_pop($privilegeParts) == 'subroute' || $service->isAllowed('xelax-route/' . $routeName, $privilege)) {
 			return;
 		}
 
