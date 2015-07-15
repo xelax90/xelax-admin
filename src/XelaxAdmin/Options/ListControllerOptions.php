@@ -391,7 +391,7 @@ class ListControllerOptions extends AbstractOptions
 			$this->createText = 'Add new '.$this->name;
 		}
 		
-		if(empty($this->pageLength)){
+		if($this->pageLength === null){
 			$this->pageLength = 10;
 		}
 		
