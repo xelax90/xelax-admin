@@ -36,16 +36,26 @@
             $values = array();
 			
 			foreach ($this->columns as $element){
-				$value = call_user_func(array($row, $element->getter));
+				if(is_callable($element->getter)){
+					$value = call_user_func($element->getter, $row);
+				} else {
+					$value = call_user_func(array($row, $element->getter));
+				}
+				
 				if($value instanceof DateTime){
 					$value = $value->format('Y-m-d H:i');
 				}
+				
 				if(is_bool($value)){
 					$value = $value ? $this->translate('Yes') : $this->translate('No');
 				}
 				
 				if(file_exists($publicPath.ltrim($value, '/')) && strpos(strtolower($finfo->file($publicPath.ltrim($value, '/'))), 'image/') === 0){
 					$value = sprintf('<img src="%s" height="80">', $this->basePath($value));
+				}
+				
+				if(strpos($value, 'fa fa-') !== false){
+					$value = '<i style="font-size: 30px" class="'.$value.'"></i>';
 				}
 				$values[$element->key] = $value;
 			}

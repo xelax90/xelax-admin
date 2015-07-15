@@ -27,6 +27,7 @@ use Doctrine\ORM\EntityManager;
 use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use JsonSerializable;
+use Exception;
 
 class ListController extends AbstractRestfulController{
 	

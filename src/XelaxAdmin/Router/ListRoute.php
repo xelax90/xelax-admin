@@ -89,6 +89,10 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 	public function match(RequestInterface $request, $pathOffset = null, array $options = array()) {
 		$match = $this->match_part($request, $pathOffset, $options);
 		if(!empty($match)){
+			$privilegeParts = explode('/', $match['params']['xelax_admin_privilege']);
+			if(!isset($match['params']['action']) && array_pop($privilegeParts) != 'subroute'){
+				$match['params']['action'] = '';
+			}
 			return new RouteMatch($match['params'], $match['length']);
 		}
 		return null;
@@ -212,14 +216,18 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 				}
 				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 1)));
 				return array(
-					'params' => $this->getRouteParams($controllerOptions),
+					'params' => $this->getRouteParams($controllerOptions, '', 0, '', $privilegeBase.'/'.$action),
 					'length' => $matchLength,
 				);
 			default :
 				// list, create and other actions
-				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 2)));
+				$matchLength = strlen(implode("/", array_slice($parts, 0, $curr + 3)));
+				$params = $this->getRouteParams($controllerOptions, $action, 0, '', $privilegeBase."/".$action);
+				if($action === 'list' && !empty($parts[$curr+2]) && is_numeric($parts[$curr+2])){
+					$params['p'] = $parts[$curr+2];
+				}
 				return array(
-					'params' => $this->getRouteParams($controllerOptions, $action, 0, '', $privilegeBase."/".$action),
+					'params' => $params,
 					'length' => $matchLength,
 				);
 		}
@@ -296,10 +304,13 @@ class ListRoute implements RouteInterface, ServiceLocatorAwareInterface{
 			if(in_array($parts[1], $this->listActionsWithId)){
 				// list action with required id
 				if(empty($params[$controllerOptions->getIdParamName()])){
-					throw new Exception\RuntimeException("List action '".$params[1]."' requires an id.");
+					throw new Exception\RuntimeException("List action '".$parts[1]."' requires an id.");
 				}
 				$res[] = $this->make_alias($controllerOptions, $params);
+			} elseif($parts[1] == 'list' && !empty($params['p'])){
+				$res[] = $params['p'];
 			}
+			
 			
 			// list actions have no children
 			return "/".implode("/", $res);
