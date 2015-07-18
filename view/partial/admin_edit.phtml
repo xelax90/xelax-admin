@@ -28,7 +28,10 @@ $form->setAttribute('method', 'post');
 
 <?php echo $this->partial('partial/admin_form.phtml', array('formular' => $form)); ?>
 
-<a href="<?php echo call_user_func($this->route_builder, 'delete', $this->id, $this->alias) ; ?>"
-   onclick="return confirm('<?php echo $this->translate($this->delete_warning_text) ?>')">
-    <?php echo $this->translate('Delete') ?>
-</a>
+<?php $deleteRoute = call_user_func($this->route_builder, 'delete', $this->id, $this->alias); ?>
+<?php if(!empty($deleteRoute)) : ?>
+	<a href="<?php echo $deleteRoute ; ?>"
+	   onclick="return confirm('<?php echo $this->translate($this->delete_warning_text) ?>')">
+		<?php echo $this->translate('Delete') ?>
+	</a>
+<?php endif; ?>
