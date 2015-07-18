@@ -19,6 +19,9 @@
  */
 
 $paginatorCreater = function($rows, $page_length, $page){
+	if($page_length <= 0){
+		return $rows;
+	}
 	if (is_array($rows)) {
 		$paginator = new Zend\Paginator\Paginator(new Zend\Paginator\Adapter\ArrayAdapter($rows));
 	} elseif($rows instanceof Traversable && !($rows instanceof Zend\Paginator\Paginator)) {
