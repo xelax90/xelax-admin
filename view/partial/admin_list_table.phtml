@@ -23,7 +23,7 @@
     <thead>
         <tr>
             <?php foreach ($this->columns as $element): ?>
-                <th><?php echo $this->escapeHtml($element->displayText ? : $element->key); ?></th>
+                <th><?php echo $this->translate($this->escapeHtml($element->displayText ? : $element->key)); ?></th>
             <?php endforeach; ?>
             <th>&nbsp;</th>
         </tr>
@@ -68,7 +68,7 @@
 			$editRoute = call_user_func($this->route_builder, 'edit', $itemId, $itemAlias);
 			if(!empty($editRoute)){
 				$buttons[] = array(
-					'title' => 'Edit',
+					'title' => gettext_noop('Edit'),
 					'url' => $editRoute,
 				);
 			}
@@ -76,7 +76,7 @@
 			$deleteRoute = call_user_func($this->route_builder, 'delete', $itemId, $itemAlias);
 			if(!empty($deleteRoute)){
 				$buttons[] = array(
-					'title' => 'Delete',
+					'title' => gettext_noop('Delete'),
 					'url' => $deleteRoute,
 					'warning' => $this->delete_warning_text
 				);

@@ -372,23 +372,23 @@ class ListControllerOptions extends AbstractOptions
 		
 		// generate missing values
 		if(empty($this->listTitle)){
-			$this->listTitle = $this->name . 's';
+			$this->listTitle = gettext_noop('%ss');
 		}
 		
 		if(empty($this->editTitle)){
-			$this->editTitle = 'Edit ' . $this->name;
+			$this->editTitle = gettext_noop('Edit %s');
 		}
 		
 		if(empty($this->createTitle)){
-			$this->createTitle = 'Create ' . $this->name;
+			$this->createTitle = gettext_noop('Create %s');
 		}
 		
 		if(empty($this->deleteWarningText)){
-			$this->deleteWarningText = 'Really delete '.$this->name.'?';
+			$this->deleteWarningText = gettext_noop('Really delete %s?');
 		}
 		
 		if(empty($this->createText)){
-			$this->createText = 'Add new '.$this->name;
+			$this->createText = gettext_noop('Add new %s');
 		}
 		
 		if($this->pageLength === null){

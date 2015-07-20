@@ -18,21 +18,3 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-?>
-		<tr>
-            <?php foreach ($this->values as $key => $value): ?>
-                <td class="cell cell-<?php echo $this->escapeHtml($key) ?>"><?php echo $value; ?></td>
-            <?php endforeach; ?>
-            <td class="cell cell-ctrls">
-				<?php $c = 0;?>
-				<?php foreach($buttons as $button): ?>
-					<?php echo $c == 0 ? '' : '|'  ?>
-					<a href="<?php echo $button['url'] ?>" <?= empty($button['warning']) ? '' : 'onclick=" return confirm(\''.$this->translate($button['warning']).'\')"' ?> >
-						<?php echo $this->translate($button['title']) ?>
-					</a>
-					<?php $c++; ?>
-				<?php endforeach; ?>
-            </td>
-        </tr>
-
-		

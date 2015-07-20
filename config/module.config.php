@@ -81,7 +81,17 @@ return array(
 			"XelaxAdmin\Provider\ListController" => null,
 		),
 	),
-					
+	
+    'translator' => array(
+        'translation_file_patterns' => array(
+            array(
+                'type'     => 'gettext',
+                'base_dir' => __DIR__ . '/../language',
+                'pattern'  => '%s.mo',
+            ),
+        ),
+    ),
+	
 	// view options
     'view_manager' => array(
         'template_path_stack' => array(

@@ -1,0 +1,100 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-20 18:49+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Controller/ListController.php:475
+#, php-format
+msgid "The %s was created"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Controller/ListController.php:547
+#, php-format
+msgid "The %s was edited"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Controller/ListController.php:626
+#, php-format
+msgid "The %s was deleted"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Controller/ListController.php:628
+#, php-format
+msgid "The %s was not deleted"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Options/ListControllerOptions.php:375
+#, php-format
+msgid "%ss"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Options/ListControllerOptions.php:379
+#, php-format
+msgid "Edit %s"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Options/ListControllerOptions.php:383
+#, php-format
+msgid "Create %s"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Options/ListControllerOptions.php:387
+#, php-format
+msgid "Really delete %s?"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/src/XelaxAdmin/Options/ListControllerOptions.php:391
+#, php-format
+msgid "Add new %s"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_edit.phtml:35
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_table.phtml:79
+msgid "Delete"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_form.phtml:42
+msgid "Add"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_pagination.phtml:27
+msgid "First"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_pagination.phtml:32
+msgid "Previous 10"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_pagination.phtml:44
+msgid "Next 10"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_pagination.phtml:49
+msgid "Last"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_table.phtml:50
+msgid "Yes"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_table.phtml:50
+msgid "No"
+msgstr ""
+
+#: bin/../vendor/xelax90/xelax-admin/view/partial/admin_list_table.phtml:71
+msgid "Edit"
+msgstr ""

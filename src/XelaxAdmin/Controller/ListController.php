@@ -28,6 +28,8 @@ use Zend\View\Model\JsonModel;
 use Zend\Json\Json;
 use JsonSerializable;
 use Exception;
+use Zend\I18n\Translator\Translator;
+
 
 class ListController extends AbstractRestfulController{
 	
@@ -39,6 +41,9 @@ class ListController extends AbstractRestfulController{
 	
 	/** @var string */
 	protected $privilegeBase = null;
+	
+	/** @var Translator */
+	protected $translator = null;
 	
 	/**
 	 * @param EntityManager $em
@@ -57,6 +62,26 @@ class ListController extends AbstractRestfulController{
 		return $this->em;
 	}
 	
+	/**
+	 * @return Translator
+	 */
+	public function getTranslator() {
+		if(null === $this->translator){
+			$this->translator = $this->getServiceLocator()->get('MVCTranslator');
+		}
+		return $this->translator;
+	}
+	
+	/**
+	 * 
+	 * @param Translator $translator
+	 * @return ListController
+	 */
+	public function setTranslator(Translator $translator) {
+		$this->translator = $translator;
+		return $this;
+	}
+
 	/**
 	 * Returns active Option name. Used to auto-generate options and entity names
 	 * @return string
@@ -366,6 +391,14 @@ class ListController extends AbstractRestfulController{
 		return $this->url()->fromRoute($routeName, $params);
 	}
 	
+	protected function translateOptionText($text, $name){
+		$translated = $this->getTranslator()->translate($text);
+		if(strpos($translated, '%s') !== false){
+			$translated = sprintf($translated, $name);
+		}
+		return $translated;
+	}
+	
 	public function createGetter($param){
 		if(empty($param)){
 			return "";
@@ -392,13 +425,13 @@ class ListController extends AbstractRestfulController{
 		$items = $this->getAll();
 		
 		$params = array(
-			'title' => $this->getOptions()->getListTitle(),
+			'title' => $this->translateOptionText($this->getOptions()->getListTitle(), $this->getName()),
 			'route_builder' => array($this, 'buildRoute'),
 			'getter_creator' => array($this, 'createGetter'),
 			'child_route_builder' => array($this, 'buildChildRoute'),
 			'parent_route_builder' => array($this, 'buildParentRoute'),
-			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
-			'create_text' => $this->getOptions()->getCreateText(),
+			'delete_warning_text' => $this->translateOptionText($this->getOptions()->getDeleteWarningText(), $this->getName()),
+			'create_text' => $this->translateOptionText($this->getOptions()->getCreateText(), $this->getName()),
 			'columns' => $this->getOptions()->getListColumns(),
 			'rows' => $items,
 			'page_length' => $this->getOptions()->getPageLength(),
@@ -439,12 +472,12 @@ class ListController extends AbstractRestfulController{
         if ($request->isPost()) {
 			$item = $this->getItem();
 			if($this->_createItem($item, $form)){
-				$this->flashMessenger()->addSuccessMessage('The '.$this->getName().' was created');
+				$this->flashMessenger()->addSuccessMessage(sprintf($this->getTranslator()->translate('The %s was created'), $this->getName()));
 				return $this->_redirectToList();
 			}
         }
 		$params = array(
-			'title' => $this->getOptions()->getCreateTitle(),
+			'title' => $this->translateOptionText($this->getOptions()->getCreateTitle(), $this->getName()),
 			'route_builder' => array($this, 'buildRoute'),
 			'form' => $form,
 		);
@@ -511,7 +544,7 @@ class ListController extends AbstractRestfulController{
         $form = $this->getEditForm();
 		
 		if($this->_editItem($item, $form)){
-            $this->flashMessenger()->addSuccessMessage('The '.$this->getName().' was edited');
+			$this->flashMessenger()->addSuccessMessage(sprintf($this->getTranslator()->translate('The %s was edited'), $this->getName()));
             return $this->_redirectToList();
 		}
 		
@@ -521,9 +554,9 @@ class ListController extends AbstractRestfulController{
 			$itemAlias = call_user_func(array($item, $this->createGetter($this->getOptions()->getAliasName())));
 		}
 		$params = array(
-			'title' => $this->getOptions()->getEditTitle(),
+			'title' => $this->translateOptionText($this->getOptions()->getEditTitle(), $this->getName()),
 			'route_builder' => array($this, 'buildRoute'),
-			'delete_warning_text' => $this->getOptions()->getDeleteWarningText(),
+			'delete_warning_text' => $this->translateOptionText($this->getOptions()->getDeleteWarningText(), $this->getName()),
             'form' => $form,
             'id' => $itemId,
             'alias' => $itemAlias,
@@ -590,9 +623,9 @@ class ListController extends AbstractRestfulController{
 		$item = $this->getItem($id);
 
 		if($this->_delteItem($item)){
-			$this->flashMessenger()->addSuccessMessage('The '.$this->getName().' was deleted');
+			$this->flashMessenger()->addSuccessMessage(sprintf($this->getTranslator()->translate('The %s was deleted'), $this->getName()));
 		} elseif($item){
-			$this->flashMessenger()->addWarningMessage('The '.$this->getName().' was not deleted');
+			$this->flashMessenger()->addWarningMessage(sprintf($this->getTranslator()->translate('The %s was not deleted'), $this->getName()));
 		}
 		return $this->_redirectToList();
 	}

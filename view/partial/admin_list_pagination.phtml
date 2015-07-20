@@ -24,12 +24,12 @@ if ($this->pageCount): ?>
 
         <!-- First page link -->
         <li<?php echo (isset($this->previous)) ? '' : ' class="disabled"'; ?>>
-            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->first); ?>">&lt;&lt; First</a>
+            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->first); ?>">&lt;&lt; <?= $this->translate('First'); ?></a>
         </li>
 
         <!-- Previous page link -->
         <li<?php echo (isset($this->previous)) ? '' : ' class="disabled"'; ?>>
-            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->previous-9); ?>">&lt; Previous 10</a>
+            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->previous-9); ?>">&lt; <?= $this->translate('Previous 10'); ?></a>
         </li>
 
         <!-- Numbered page links -->
@@ -41,12 +41,12 @@ if ($this->pageCount): ?>
 
         <!-- Next page link -->
         <li<?php echo (isset($this->next)) ? '' : ' class="disabled"'; ?>>
-            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->next+9); ?>">Next 10 &gt;</a>
+            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->next+9); ?>"><?= $this->translate('Next 10'); ?> &gt;</a>
         </li>
 
         <!-- Last page link -->
         <li<?php echo (isset($this->next)) ? '' : ' class="disabled"'; ?>>
-            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->last); ?>">Last &gt;&gt;</a>
+            <a href="<?php echo call_user_func($this->route_builder, 'list', $this->last); ?>"><?= $this->translate('Last'); ?> &gt;&gt;</a>
         </li>
 
     </ul>
