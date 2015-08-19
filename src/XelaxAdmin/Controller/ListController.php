@@ -443,7 +443,7 @@ class ListController extends AbstractRestfulController{
 		if(!empty($childOptions)){
 			$childRoutes = array();
 			foreach($childOptions as $key => $option){
-				$childRoutes[$key] = $option->getName();
+				$childRoutes[$key] = $option->getButtonTitle();
 			}
 			$params['child_routes'] = $childRoutes;
 		}
