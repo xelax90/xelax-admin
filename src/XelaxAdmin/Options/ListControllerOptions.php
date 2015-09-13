@@ -52,6 +52,9 @@ class ListControllerOptions extends AbstractOptions
 	protected $entityClass;
 	/** @var string Form class. Defaults to _BaseNamespace_\Form\_Name_Form */
 	protected $formClass;
+	/** @var string Title of the Button. Only used when this is a child route */
+	protected $buttonTitle;
+	
 	
 	/** @var boolean Set to true if you want REST functionality. Only POST Requests support file uploading so far! */
 	protected $restEnabled = false;
@@ -343,7 +346,15 @@ class ListControllerOptions extends AbstractOptions
 		$this->restEnabled = $restEnabled;
 		return $this;
 	}
+	
+	public function getButtonTitle() {
+		return $this->buttonTitle;
+	}
 
+	public function setButtonTitle($buttonTitle) {
+		$this->buttonTitle = $buttonTitle;
+		return $this;
+	}
 		
 	public function __construct($options = null) {
 		if(!empty($options['parent_options'])){ // this should not be used I guess..
@@ -373,6 +384,10 @@ class ListControllerOptions extends AbstractOptions
 		// generate missing values
 		if(empty($this->listTitle)){
 			$this->listTitle = gettext_noop('%ss');
+		}
+		
+		if(empty($this->buttonTitle)){
+			$this->buttonTitle = $this->name;
 		}
 		
 		if(empty($this->editTitle)){
