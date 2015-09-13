@@ -393,8 +393,9 @@ class ListController extends AbstractRestfulController{
 	
 	protected function translateOptionText($text, $name){
 		$translated = $this->getTranslator()->translate($text);
+		$translatedName = $this->getTranslator()->translate($name);
 		if(strpos($translated, '%s') !== false){
-			$translated = sprintf($translated, $name);
+			$translated = sprintf($translated, $translatedName);
 		}
 		return $translated;
 	}

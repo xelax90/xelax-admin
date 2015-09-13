@@ -37,7 +37,7 @@ class ListControllerOptions extends AbstractOptions
 
 	/** 
 	 * Options of child controller
-	 * @var array() 
+	 * @var array
 	 */
 	protected $childOptions = array();
 	
