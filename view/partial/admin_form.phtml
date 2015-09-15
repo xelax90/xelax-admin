@@ -39,7 +39,7 @@
 				};
 
 				var btn = $('<button>').addClass("btn btn-success");
-				btn.append('<i class="glyphicon glyphicon-plus"></i> '<?= $this->translate('Add'); ?>');
+				btn.append('<i class="glyphicon glyphicon-plus"></i> <?= $this->translate('Add'); ?>');
 				btn.click(addElement);
 				var cont = $('<div>').addClass('btn-group btn-group-justified').attr('role', 'group').attr('aria-label', 'Element hinzufügen').append($('<div>').addClass('btn-group').attr('role', 'group').append(btn));
 				$(this).closest('fieldset').append(
