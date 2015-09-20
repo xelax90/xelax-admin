@@ -1,4 +1,5 @@
 <?php
+use Zend\Mvc\Controller\Plugin\FlashMessenger as PluginFlashMessenger;
 
 /* 
  * Copyright (C) 2014 schurix
@@ -38,6 +39,22 @@ $paginatorCreater = function($rows, $page_length, $page){
 ?>
 
 <h1><?php echo $this->translate($this->title) ?></h1>
+
+<?php 
+	$messengerClasses = array(
+        PluginFlashMessenger::NAMESPACE_INFO => 'info',
+        PluginFlashMessenger::NAMESPACE_ERROR => 'danger',
+        PluginFlashMessenger::NAMESPACE_SUCCESS => 'success',
+        PluginFlashMessenger::NAMESPACE_DEFAULT => 'info',
+        PluginFlashMessenger::NAMESPACE_WARNING => 'warning'
+	);
+	$this->flashMessenger()->setMessageOpenFormat('<div%s>');
+	$this->flashMessenger()->setMessageCloseString('</div>');
+	$this->flashMessenger()->setMessageSeparatorString('</div><div%s>');
+	foreach($messengerClasses as $messengerClass => $cssClass){
+		echo $this->flashMessenger()->render($messengerClass, array('alert', 'alert-'.$cssClass, 'alert-dismissible'));
+	}
+?>
 
 <div class="navbar filter-bar">
     <div class="navbar-inner">
