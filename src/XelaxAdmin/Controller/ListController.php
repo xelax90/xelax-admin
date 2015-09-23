@@ -98,6 +98,14 @@ class ListController extends AbstractRestfulController{
 		return $name;
 	}
 	
+	public function getButtons($option = null){
+		if(empty($option)){
+			$option = $this->getOptions();
+		}
+		$buttons = $option->getButtons();
+		return $buttons;
+	}
+	
 	/**
 	 * Returns the child controller's options. Retuns null if no child controller
 	 * @return ListControllerOptions
@@ -435,6 +443,7 @@ class ListController extends AbstractRestfulController{
 			'create_text' => $this->translateOptionText($this->getOptions()->getCreateText(), $this->getName()),
 			'columns' => $this->getOptions()->getListColumns(),
 			'rows' => $items,
+			'buttons' => $this->getButtons(),
 			'page_length' => $this->getOptions()->getPageLength(),
 			'alias_name' => $this->getOptions()->getAliasName(),
 			'id_name' => $this->getOptions()->getIdName(),

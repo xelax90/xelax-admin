@@ -91,7 +91,20 @@
 				}
 			}
 			
-			// TODO row buttons
+			// Custom row buttons
+			if(!empty($this->buttons)){
+				foreach ($this->buttons as $button) {
+					/* @var $button \XelaxAdmin\Options\ListControllerButton */
+					$url = call_user_func($button->getRouteBuilder(), $this, $itemId, $itemAlias);
+					if($url !== false){
+						$buttons[] = array(
+							'title' => $button->getTitle(),
+							'url' => $url,
+						);
+					}
+				}
+			}
+			
 			echo $this->partial('partial/admin_list_table_row.phtml', array('values' => $values, 'buttons' => $buttons));
 		} 
 		

@@ -78,6 +78,9 @@ class ListControllerOptions extends AbstractOptions
 	/** @var ListControllerRoute route to delete. Leave empty to auto-generate */
 	protected $deleteRoute;
 	
+	/** @var array Array of ListControllerButton to be shown next to Edit/Delete buttons in list view */
+	protected $buttons;
+	
 	/** @var string Prompt when clicking delete */
 	protected $deleteWarningText;
 	/** @var string Caption of 'Add new' button */
@@ -355,7 +358,21 @@ class ListControllerOptions extends AbstractOptions
 		$this->buttonTitle = $buttonTitle;
 		return $this;
 	}
-		
+	
+	public function getButtons() {
+		return $this->buttons;
+	}
+
+	public function setButtons($buttons) {
+		foreach($buttons as $key => $button){
+			if(!$button instanceof ListControllerButton){
+				$buttons[$key] = new ListControllerButton($button);
+			}
+		}
+		$this->buttons = $buttons;
+		return $this;
+	}
+
 	public function __construct($options = null) {
 		if(!empty($options['parent_options'])){ // this should not be used I guess..
 			$parentOptions = new static($options['parent_options']);
