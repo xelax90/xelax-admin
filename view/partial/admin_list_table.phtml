@@ -95,7 +95,7 @@
 			if(!empty($this->buttons)){
 				foreach ($this->buttons as $button) {
 					/* @var $button \XelaxAdmin\Options\ListControllerButton */
-					$url = call_user_func($button->getRouteBuilder(), $this, $itemId, $itemAlias);
+					$url = call_user_func($button->getRouteBuilder(), $this, $itemId, $itemAlias, $row);
 					if($url !== false){
 						$buttons[] = array(
 							'title' => $button->getTitle(),
