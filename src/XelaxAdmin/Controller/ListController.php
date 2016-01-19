@@ -705,7 +705,7 @@ class ListController extends AbstractRestfulController{
 	
 	public function update($id, $data) {
 		if(!$this->getOptions()->getRestEnabled()){
-			parent::update($id, $data);
+			return parent::update($id, $data);
 		}
 		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
         $item = $this->getItem($id);
@@ -721,7 +721,7 @@ class ListController extends AbstractRestfulController{
 	
 	public function delete($id) {
 		if(!$this->getOptions()->getRestEnabled()){
-			parent::delete($id);
+			return parent::delete($id);
 		}
 		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
 		$item = $this->getItem($id);
@@ -738,7 +738,7 @@ class ListController extends AbstractRestfulController{
 	
 	public function getList() {
 		if(!$this->getOptions()->getRestEnabled()){
-			parent::getList();
+			return parent::getList();
 		}
 		$this->getResponse()->getHeaders()->addHeaderLine('Content-Type', 'application/json');
 		$result = array();
