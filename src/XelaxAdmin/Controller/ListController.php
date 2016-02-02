@@ -729,7 +729,12 @@ class ListController extends AbstractRestfulController{
 		if($this->_delteItem($item)){
 			$result['success'] = true;
 		} elseif($item){
-			$result['error'] = 'The '.$this->getName().' was not deleted';
+			$messages = $this->flashMessenger()->getErrorMessages();
+			$error = 'The '.$this->getName().' was not deleted';
+			if(!empty($messages)){
+				$error = implode(', ', $messages);
+			}
+			$result['error'] = $error;
 		} else {
 			$result['error'] = 'The '.$this->getName().' was not found';
 		}
