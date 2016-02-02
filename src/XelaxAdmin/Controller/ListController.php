@@ -178,7 +178,7 @@ class ListController extends AbstractRestfulController{
 	 * @return string
 	 * @throws \Exception
 	 */
-	private function getBaseNamespace($options = null){
+	protected function getBaseNamespace($options = null){
 		if(empty($options)){
 			$options = $this->getOptions();
 		}
@@ -196,7 +196,7 @@ class ListController extends AbstractRestfulController{
 	 * Returns namespace for entities
 	 * @return string
 	 */
-	private function getEntityNamespace(){
+	protected function getEntityNamespace(){
 		return $this->getBaseNamespace()."\\Entity";
 	}
 	
@@ -204,11 +204,11 @@ class ListController extends AbstractRestfulController{
 	 * Returns namespace for forms
 	 * @return string
 	 */
-	private function getFormNamespace(){
+	protected function getFormNamespace(){
 		return $this->getBaseNamespace()."\\Form";
 	}
 	
-	private function getEntityClass($option = null){
+	protected function getEntityClass($option = null){
 		if(empty($option)){
 			$option = $this->getOptions();
 		}
@@ -218,7 +218,7 @@ class ListController extends AbstractRestfulController{
 		return $this->getEntityNamespace()."\\".$this->getName($option);
 	}
 	
-	private function getFormClass($option = null){
+	protected function getFormClass($option = null){
 		if(empty($option)){
 			$option = $this->getOptions();
 		}
